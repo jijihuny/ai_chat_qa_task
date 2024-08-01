@@ -1,25 +1,25 @@
-# Example Config
-task: text-generation
-model: meta-llama/Meta-Llama-3-8B
-torch_dtype: auto
-device_map: auto
-
-dataset: null
-dataset_name: null
-shuffle: true
-test_size: 0.1
+model:
+  task: text-generation
+  system_prompt: 너는 유능한 챗봇이야
+  path: meta-llama/Meta-Llama-3-8B
+  torch_dtype: auto
+  device_map: auto
+  attn_implementation: null
+dataset:
+  path: null
+  name: null
+  shuffle: true
+  test_size: 0.9
+metric:
+  path: null
+generation:
+  return_full_text: false
+  max_new_token: null
+  do_sample: false
+  top_k: 1
+  top_p: 0.95
+  temperature: 1.0
+  penalty_alpha: null
+  repetition_penalty: null
+  dora_layers: null
 seed: 42
-
-metric: null
-
-max_new_token: null
-
-do_sample: false
-top_k: 1
-top_p: null
-temperature: null
-penalty_alpha: null
-repetition_penalty: null
-dora_layers: null
-
-system_prompt: 너는 유능한 챗봇이야

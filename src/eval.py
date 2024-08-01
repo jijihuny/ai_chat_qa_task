@@ -36,13 +36,14 @@ class Evaluator:
 
     def prepare_model(self: Self)-> Tuple[PreTrainedModel, PreTrainedTokenizer]:
         self.model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
-            self.args.model,
-            torch_dtype=self.args.torch_dtype,
-            device_map=self.args.device_map
+            self.args.model.path,
+            torch_dtype=self.args.model.torch_dtype,
+            device_map=self.args.model.device_map,
+            attn_implementation=self.args.model.attn_implementation
         )
         self.tokenizer: PreTrainedModel = AutoTokenizer.from_pretrained(
-            self.args.model,
-            device_map=self.args.device_map
+            self.args.model.path,
+            device_map=self.args.model.device_map
         )
 
         return self.model, self.tokenizer
@@ -102,10 +103,9 @@ class Evaluator:
         for example in tqdm(eval_sample['text']):
             generated = self.generator(
                 example,
-                return_full_text=False,
-                do_sample=False
-            )[:]['generated_text']
-            predictions += generated
+                **self.args.generation
+            )[0]['generated_text']
+            predictions += [ generated ]
 
         self.results = self.metric.compute(
             predictions=predictions,
