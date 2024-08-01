@@ -131,7 +131,6 @@ def main():
     schema = OmegaConf.structured(Preset)
     yaml = OmegaConf.load(path)
     pargs = OmegaConf.merge(schema, yaml)
-    pargs: Preset = parser.parse_yaml_file(path)[1]
 
     evaluator = Evaluator(pargs)
     results = evaluator()
