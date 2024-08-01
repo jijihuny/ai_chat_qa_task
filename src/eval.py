@@ -88,7 +88,7 @@ class Evaluator:
             self.user_message_template = """Context: {context}\nQuestion: {question}"""
         def formatter(example: Dict[str, str])-> str:
             conversation = [
-                { 'role': 'system', 'content': self.args.system_prompt },
+                { 'role': 'system', 'content': self.args.model.system_prompt },
                 { 'role': 'user', 'content': self.user_message_template.format(context=example['context'], question=example['question']) }
             ]
             return self.tokenizer.apply_chat_template(conversation=conversation, tokenize=False, add_generation_prompt=True)
