@@ -82,7 +82,7 @@ class Evaluator:
         return self.metric
 
 
-    def __chat_prompt_format_func(self: Self)-> Callable[[Dict[str, str], str]]:
+    def __chat_prompt_format_func(self: Self)-> Callable[[Dict[str, str]], str]:
         if not(hasattr(self, 'user_message_template')):
             self.user_message_template = """Context: {context}\nQuestion: {question}"""
         def formatter(example: Dict[str, str])-> str:
