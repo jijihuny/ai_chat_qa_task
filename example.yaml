@@ -1,3 +1,4 @@
+# Example Config
 task: text-generation
 model: meta-llama/Meta-Llama-3-8B
 torch_dtype: auto
