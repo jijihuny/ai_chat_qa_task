@@ -82,18 +82,21 @@ class Evaluator:
         return self.metric
 
 
-    def __chat_prompt_format(self: Self, example: Dict[str, str])-> str:
+    def __chat_prompt_format_func(self: Self)-> Callable[[Dict[str, str], str]]:
         if not(hasattr(self, 'user_message_template')):
             self.user_message_template = """Context: {context}\nQuestion: {question}"""
-
-        conversation = [
-            { 'role': 'system', 'content': self.args.system_prompt },
-            { 'role': 'user', 'content': self.user_message_template.format(context=example['context'], question=example['question']) }
-        ]
-        return self.tokenizer.apply_chat_template(conversation=conversation, tokenize=False, add_generation_prompt=True)
+        def formatter(example: Dict[str, str])-> str:
+            conversation = [
+                { 'role': 'system', 'content': self.args.system_prompt },
+                { 'role': 'user', 'content': self.user_message_template.format(context=example['context'], question=example['question']) }
+            ]
+            return self.tokenizer.apply_chat_template(conversation=conversation, tokenize=False, add_generation_prompt=True)
+        
+        return formatter
 
     def __call__(self: Self):
-        eval_sample = self.dataset['test'].map(lambda example: { "text": self.__chat_prompt_format(example) }, num_proc=4)
+        formatter = self.__chat_prompt_format_func()
+        eval_sample = self.dataset['test'].map(lambda example: { "text": formatter(example) }, num_proc=4)
         predictions = []
 
         for example in tqdm(eval_sample['text']):
