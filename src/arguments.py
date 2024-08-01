@@ -2,13 +2,13 @@ from transformers.hf_argparser import (
     HfArg
 )
 from dataclasses import dataclass, MISSING
-from typing import (
-    Callable
-)
-
 
 @dataclass
 class Arguments:
+    config: str = HfArg(default='experiment')
+
+@dataclass
+class Preset:
     """
     TODO
     """
