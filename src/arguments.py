@@ -56,6 +56,3 @@ class Preset:
     generation: GenerationPreset = HfArg(default_factory=lambda : GenerationPreset())
 
     seed: int = HfArg(default=42)
-
-    
-OmegaConf.save(Preset(), 'config.yaml')
