@@ -12,6 +12,7 @@ class Arguments:
     """
     TODO
     """
+    task: str = HfArg(default="text-generation")
     model: str = HfArg(default="meta-llama/Meta-Llama-3-8B")
     torch_dtype: str = HfArg(default='auto')
     device_map: str = HfArg(default='auto')

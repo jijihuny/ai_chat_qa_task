@@ -33,18 +33,18 @@ from typing import (
 
 from arguments import Arguments
 
-def prepare_model(base_model_id: str = 'meta-llama/Meta-Llama-3-8B')-> Tuple[
+def prepare_model(args: Arguments)-> Tuple[
     PreTrainedModel,
     PreTrainedTokenizer
 ]:
     model = AutoModelForCausalLM.from_pretrained(
-        base_model_id,
-        torch_dtype='auto',
-        device_map='auto'
+        args.model,
+        torch_dtype=args.torch_dtype,
+        device_map=args.device_map
     )
     tokenizer = AutoTokenizer.from_pretrained(
-        base_model_id,
-        device_map='auto'
+        args.model,
+        device_map=args.device_map
     )
 
     return model, tokenizer
@@ -62,29 +62,25 @@ def prepare_pipeline(
 
 
 def prepare_data(
-        path: str, 
-        name: str | None = None,
-        test_size: float | None = None,
-        shuffle: bool | None = None,
-        seed: int | None = None
+        args: Arguments
     )-> Dataset:
     dataset = load_dataset(
-        path,
-        name
+        args.dataset,
+        args.dataset_name
     )
     
-    if test_size is not None:
+    if args.test_size is not None:
         dataset = dataset.train_test_split(
-            test_size=test_size,
-            shuffle=shuffle,
-            seed=seed
+            test_size=args.test_size,
+            shuffle=args.shuffle,
+            seed=args.seed
         )
 
     return dataset
 
 
-def prepare_metric(path: str)-> Metric:
-    return load(path=path)
+def prepare_metric(args: Arguments)-> Metric:
+    return load(path=args.metric)
 
 
 def get_chat_prompt_func(tokenizer: PreTrainedTokenizer, prompt: str)-> Callable[[Dict[str, str]], str]:
@@ -102,16 +98,10 @@ def main():
     parser = HfArgumentParser(dataclass_types=[Arguments])
     args: Arguments = parser.parse_yaml_file('config.yaml')
 
-    model, tokenizer = prepare_model(args.model)
-    generator = prepare_pipeline(model, tokenizer, )
-    data = prepare_data(
-        path=args.dataset,
-        name=args.dataset_name,
-        train_size=args.test_size,
-        shuffle=args.shuffle,
-        seed=args.seed
-    )
-    metric = prepare_metric(path=args.metric)
+    model, tokenizer = prepare_model(args)
+    generator = prepare_pipeline(args)
+    data = prepare_data(args)
+    metric = prepare_metric(args)
 
     formatter = get_chat_prompt_func(tokenizer=tokenizer, prompt=args.system_prompt)
     data = data.map(lambda x : { 'text': formatter(x) }, num_proc=4)
