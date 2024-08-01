@@ -18,6 +18,8 @@ from typing import (
     Dict
 )
 from arguments import Arguments, Preset
+from omegaconf import OmegaConf
+
 
 class Evaluator:
     def __init__(self: Self, args: Preset):
@@ -48,6 +50,7 @@ class Evaluator:
 
         return self.model, self.tokenizer
 
+
     def prepare_pipeline(
             self: Self
     )-> TextGenerationPipeline:
@@ -61,6 +64,7 @@ class Evaluator:
         )
 
         return self.generator
+
 
     def prepare_data(self: Self)-> Dataset:
         self.dataset = load_dataset(
@@ -95,6 +99,7 @@ class Evaluator:
         
         return formatter
 
+
     def __call__(self: Self):
         formatter = self.__chat_prompt_format_func()
         eval_sample = self.dataset['test'].map(lambda example: { "text": formatter(example) }, num_proc=4)
@@ -123,6 +128,9 @@ def main():
     cwd = os.getcwd()
     args: Arguments = parser.parse_args_into_dataclasses()[0]
     path = join(cwd, args.config, 'config.yaml')
+    schema = OmegaConf.structured(Preset)
+    yaml = OmegaConf.load(path)
+    pargs = OmegaConf.merge(schema, yaml)
     pargs: Preset = parser.parse_yaml_file(path)[1]
 
     evaluator = Evaluator(pargs)
