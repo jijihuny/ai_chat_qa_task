@@ -96,9 +96,10 @@ def get_chat_prompt_func(tokenizer: PreTrainedTokenizer, prompt: str)-> Callable
 
 def main():
     parser = HfArgumentParser(dataclass_types=[Arguments])
-    args: Arguments = parser.parse_yaml_file('config.yaml')
+    args: Arguments = parser.parse_yaml_file('config.yaml')[0]
 
     model, tokenizer = prepare_model(args)
+    args.model = model
     generator = prepare_pipeline(args)
     data = prepare_data(args)
     metric = prepare_metric(args)
