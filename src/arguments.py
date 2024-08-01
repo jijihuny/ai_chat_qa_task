@@ -42,7 +42,7 @@ class GenerationPreset:
     
     repetition_penalty: float | None = HfArg(default=None, help='repetition penalty. 1.2', metadata={'type': float})
     
-    dora_layers: str | None = HfArg(default=None, help='DoLa')
+    dola_layers: str | None = HfArg(default=None, help='DoLa')
     
 
 @dataclass

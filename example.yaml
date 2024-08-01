@@ -13,13 +13,28 @@ dataset:
 metric:
   path: null
 generation:
+  # 프롬프트를 포함하지 않음(false)
   return_full_text: false
+  # 생성할 최대 토큰 숫자
   max_new_token: null
+  # Stochastic Decoding Algorithm
   do_sample: false
+  # 상위 K개의 Vocab
   top_k: 1
+  # Smallest subset V' s.t \sum_{v \in V} v \geq p
   top_p: 0.95
+  # softmax(x/T) 
+  # T > 1        => smooth(uniform as T -> \infty) 
+  # 0 <= T < 1   => sharpen(deterministic as T -> 0+)
   temperature: 1.0
-  penalty_alpha: null
+    # penalty on generated token. temperature보다 높아야함
   repetition_penalty: null
-  dora_layers: null
+
+  # Contrastive search
+  # Degeneration penalty
+  # argmax (1-alpha) * p(v, x_{<i}) - alpha * max_{j<i}(similarity(v, x_j))
+  penalty_alpha: null
+
+  # https://arxiv.org/abs/2309.03883
+  dola_layers: null
 seed: 42

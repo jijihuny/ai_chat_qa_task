@@ -9,7 +9,7 @@ from transformers import (
 )
 from transformers.hf_argparser import HfArgumentParser
 from datasets import load_dataset, Dataset
-from evaluate import load, Metric
+from evaluate import load, Metric, Evaluator
 from tqdm import tqdm
 from typing import (
     Tuple,
@@ -102,7 +102,7 @@ class Evaluator:
 
     def __call__(self: Self):
         formatter = self.__chat_prompt_format_func()
-        eval_sample = self.dataset['test'].map(lambda example: { "text": formatter(example) }, num_proc=4)
+        eval_sample = self.dataset['test'].map(lambda example: { "text": formatter(example) })
         predictions = []
 
         for example in tqdm(eval_sample['text']):
