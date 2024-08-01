@@ -94,9 +94,13 @@ def get_chat_prompt_func(tokenizer: PreTrainedTokenizer, prompt: str)-> Callable
 
     return format
 
+import os
+from os.path import join
+
 def main():
     parser = HfArgumentParser(dataclass_types=[Arguments])
-    args: Arguments = parser.parse_yaml_file('config.yaml')[0]
+    cwd = os.getcwd()
+    args: Arguments = parser.parse_yaml_file(join(cwd, 'config.yaml'))[0]
 
     model, tokenizer = prepare_model(args)
     args.model = model
