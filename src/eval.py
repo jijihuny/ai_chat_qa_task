@@ -68,14 +68,14 @@ class Evaluator:
 
     def prepare_data(self: Self)-> Dataset:
         self.dataset = load_dataset(
-            self.args.dataset,
-            self.args.dataset_name
+            self.args.dataset.path,
+            self.args.dataset.name
         )
         
-        if self.args.test_size is not None:
+        if self.args.dataset.test_size is not None:
             self.dataset = self.dataset['train'].train_test_split(
-                test_size=self.args.test_size,
-                shuffle=self.args.shuffle,
+                test_size=self.args.dataset.test_size,
+                shuffle=self.args.dataset.shuffle,
                 seed=self.args.seed
             )
 
@@ -83,7 +83,7 @@ class Evaluator:
 
 
     def prepare_metric(self: Self)-> Metric:
-        self.metric = load(path=self.args.metric)
+        self.metric = load(path=self.args.metric.path)
         return self.metric
 
 
