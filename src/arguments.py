@@ -86,8 +86,3 @@ class Config:
     generation: GenerationConfig = HfArg(default_factory=GenerationConfig)
     train: TrainConfig = HfArg(default_factory=TrainConfig)
     seed: int = HfArg(default=42)
-
-
-import omegaconf
-
-omegaconf.OmegaConf.save(Config, "config.yaml")

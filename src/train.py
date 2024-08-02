@@ -3,6 +3,7 @@ from transformers import (
     PreTrainedTokenizer,
     AutoModelForCausalLM,
     AutoTokenizer,
+    EvalPrediction,
 )
 from transformers.hf_argparser import HfArgumentParser
 from peft import get_peft_model, prepare_model_for_kbit_training
@@ -16,6 +17,9 @@ class Trainer(Base):
     def __init__(self: Self, args: Config):
         super().__init__(args=args)
 
+        self.prepare_model()
+        self.prepare_data()
+        self.prepare_metric()
         self._prepare_data_collator()
         self.prepare_trainer()
 
@@ -46,6 +50,12 @@ class Trainer(Base):
         def formatting_func(dataset) -> list[str]:
             return dataset["text"]
 
+        def compute_metrics(eval_pred: EvalPrediction):
+            predictions = eval_pred.predictions
+            label_ids = eval_pred.label_ids
+
+            print(predictions, label_ids)
+
         self.trainer = SFTTrainer(
             model=self.model,
             tokenizer=self.tokenizer,
@@ -55,6 +65,7 @@ class Trainer(Base):
             data_collator=self.data_collator,
             formatting_func=formatting_func,
             peft_config=self.args.train.lora,
+            compute_metrics=compute_metrics,
         )
 
     def __call__(self: Self):
