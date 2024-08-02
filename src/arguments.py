@@ -12,6 +12,7 @@ class Arguments:
 
 @dataclass
 class ModelConfig:
+    _argument_group_name: str = 'model'
     task: str = HfArg(default="text-generation")
     system_prompt: str = HfArg(default="너는 유능한 챗봇이야")
     path: str = HfArg(default="meta-llama/Meta-Llama-3-8B")
@@ -73,6 +74,11 @@ class TrainConfig:
     lora: LoraConfig = HfArg(default_factory=lambda: LoraConfig())
     args: SFTConfig = HfArg(default_factory=lambda: SFTConfig(output_dir="output"))
 
+    def __post_init__(self):
+        self.quantization = BitsAndBytesConfig(**self.quantization)
+        self.lora = LoraConfig(**self.lora)
+        self.args = SFTConfig(**self.args)
+
 
 @dataclass
 class Config:
@@ -86,3 +92,10 @@ class Config:
     generation: GenerationConfig = HfArg(default_factory=GenerationConfig)
     train: TrainConfig = HfArg(default_factory=TrainConfig)
     seed: int = HfArg(default=42)
+
+    def __post_init__(self):
+        self.model = ModelConfig(**self.model)
+        self.dataset = DatasetConfig(**self.dataset)
+        self.metric = MetricConfig(**self.metric)
+        self.generation = GenerationConfig(**self.generation)
+        self.train = TrainConfig(**self.train)
