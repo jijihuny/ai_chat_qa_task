@@ -87,3 +87,6 @@ def main():
     pargs: Config = parser.parse_yaml_file(path)[1]
     trainer = Trainer(pargs)
     trainer()
+
+if __name__=='__main__':
+    main()
