@@ -85,8 +85,10 @@ def main():
     args: Arguments = parser.parse_args_into_dataclasses()[0]
     path = join(cwd, args.config, "config.yaml")
     pargs: Config = parser.parse_yaml_file(path)[1]
+
     trainer = Trainer(pargs)
     trainer()
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     main()

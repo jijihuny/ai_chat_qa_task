@@ -1,4 +1,4 @@
-from transformers.hf_argparser import HfArg
+from transformers.hf_argparser import HfArg, HfArgumentParser
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig
 from trl import SFTConfig
@@ -12,7 +12,7 @@ class Arguments:
 
 @dataclass
 class ModelConfig:
-    _argument_group_name: str = 'model'
+    _argument_group_name: str = "model"
     task: str = HfArg(default="text-generation")
     system_prompt: str = HfArg(default="너는 유능한 챗봇이야")
     path: str = HfArg(default="meta-llama/Meta-Llama-3-8B")
@@ -75,9 +75,15 @@ class TrainConfig:
     args: SFTConfig = HfArg(default_factory=lambda: SFTConfig(output_dir="output"))
 
     def __post_init__(self):
-        self.quantization = BitsAndBytesConfig(**self.quantization)
-        self.lora = LoraConfig(**self.lora)
-        self.args = SFTConfig(**self.args)
+        self.quantization = (
+            BitsAndBytesConfig(**self.quantization)
+            if isinstance(self.quantization, dict)
+            else self.quantization
+        )
+        self.lora = (
+            LoraConfig(**self.lora) if isinstance(self.lora, dict) else self.lora
+        )
+        self.args = SFTConfig(**self.args) if isinstance(self.args, dict) else self.args
 
 
 @dataclass
@@ -94,8 +100,24 @@ class Config:
     seed: int = HfArg(default=42)
 
     def __post_init__(self):
-        self.model = ModelConfig(**self.model)
-        self.dataset = DatasetConfig(**self.dataset)
-        self.metric = MetricConfig(**self.metric)
-        self.generation = GenerationConfig(**self.generation)
-        self.train = TrainConfig(**self.train)
+        self.model = (
+            ModelConfig(**self.model) if isinstance(self.model, dict) else self.model
+        )
+        self.dataset = (
+            DatasetConfig(**self.dataset)
+            if isinstance(self.dataset, dict)
+            else self.dataset
+        )
+        self.metric = (
+            MetricConfig(**self.metric)
+            if isinstance(self.metric, dict)
+            else self.metric
+        )
+        self.generation = (
+            GenerationConfig(**self.generation)
+            if isinstance(self.generation, dict)
+            else self.generation
+        )
+        self.train = (
+            TrainConfig(**self.train) if isinstance(self.train, dict) else self.train
+        )
