@@ -1,58 +1,93 @@
-from transformers.hf_argparser import (
-    HfArg
-)
-from dataclasses import dataclass, MISSING
-from omegaconf import OmegaConf
-@dataclass
-class Arguments:
-    config: str | None = HfArg(default='experiment')
+from transformers.hf_argparser import HfArg
+from transformers import BitsAndBytesConfig
+from peft import LoraConfig
+from trl import SFTConfig
+from dataclasses import dataclass
+
 
 @dataclass
-class ModelPreset:
+class Arguments:
+    config: str | None = HfArg(default="experiment")
+
+
+@dataclass
+class ModelConfig:
     task: str = HfArg(default="text-generation")
-    system_prompt: str = HfArg(default='너는 유능한 챗봇이야')
+    system_prompt: str = HfArg(default="너는 유능한 챗봇이야")
     path: str = HfArg(default="meta-llama/Meta-Llama-3-8B")
-    torch_dtype: str = HfArg(default='auto')
-    device_map: str = HfArg(default='auto')
+    torch_dtype: str = HfArg(default="auto")
+    device_map: str = HfArg(default="auto")
     attn_implementation: str | None = HfArg(default=None)
 
 
 @dataclass
-class DatasetPreset:
+class DatasetConfig:
     path: str | None = HfArg(default=None)
     name: str | None = HfArg(default=None)
     shuffle: bool = HfArg(default=True)
-    test_size: float = HfArg(default=0.9)
+    test_size: float | None = HfArg(default=0.9)
+
 
 @dataclass
-class MetricPreset:
+class MetricConfig:
     path: str | None = HfArg(default=None)
 
+
 @dataclass
-class GenerationPreset:
+class GenerationConfig:
     return_full_text: bool = HfArg(default=False)
     max_new_token: int | None = HfArg(default=None)
 
-    do_sample: bool = HfArg(default=False, help='sampling 여부')
-    top_k: int = HfArg(default=1, help='상위 K', metadata={'type': int})
-    top_p: float = HfArg(default=0.95, help='smallest subset of vocabrary such that sum of total probilities >= p', metadata={'type': float})
-    temperature: float | None = HfArg(default=1.0, metadata={'type': float})
-    
-    penalty_alpha: float | None = HfArg(default=None, help='Degeneration penalty. 0.6', metadata={'type': float})
-    
-    repetition_penalty: float | None = HfArg(default=None, help='repetition penalty. 1.2', metadata={'type': float})
-    
-    dola_layers: str | None = HfArg(default=None, help='DoLa')
-    
+    do_sample: bool = HfArg(default=False, help="sampling 여부")
+    top_k: int | None = HfArg(default=1, help="상위 K", metadata={"type": int})
+    top_p: float | None = HfArg(
+        default=0.95,
+        help="smallest subset of vocabrary such that sum of total probilities >= p",
+        metadata={"type": float},
+    )
+    temperature: float | None = HfArg(default=1.0, metadata={"type": float})
+
+    penalty_alpha: float | None = HfArg(
+        default=None, help="Degeneration penalty. 0.6", metadata={"type": float}
+    )
+
+    repetition_penalty: float | None = HfArg(
+        default=None, help="repetition penalty. 1.2", metadata={"type": float}
+    )
+
+    dola_layers: str | None = HfArg(default=None, help="DoLa")
+
 
 @dataclass
-class Preset:
+class TrainConfig:
+    instruction_template: str | None = HfArg(default=None)
+    response_template: str | None = HfArg(default=None)
+    quantization: BitsAndBytesConfig = HfArg(
+        default_factory=lambda: BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype="bfloat16",
+            bnb_4bit_use_double_quant=True,
+        )
+    )
+    lora: LoraConfig = HfArg(default_factory=lambda: LoraConfig())
+    args: SFTConfig = HfArg(default_factory=lambda: SFTConfig(output_dir="output"))
+
+
+@dataclass
+class Config:
     """
     TODO
     """
-    model: ModelPreset = HfArg(default_factory=lambda : ModelPreset())
-    dataset: DatasetPreset = HfArg(default_factory=lambda : DatasetPreset())
-    metric: MetricPreset = HfArg(default_factory=lambda : MetricPreset())
-    generation: GenerationPreset = HfArg(default_factory=lambda : GenerationPreset())
 
+    model: ModelConfig = HfArg(default_factory=ModelConfig)
+    dataset: DatasetConfig = HfArg(default_factory=DatasetConfig)
+    metric: MetricConfig = HfArg(default_factory=MetricConfig)
+    generation: GenerationConfig = HfArg(default_factory=GenerationConfig)
+    train: TrainConfig = HfArg(default_factory=TrainConfig)
     seed: int = HfArg(default=42)
+
+
+import omegaconf
+
+omegaconf.OmegaConf.save(Config, "config.yaml")
