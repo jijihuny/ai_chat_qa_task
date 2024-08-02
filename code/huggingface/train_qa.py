@@ -11,6 +11,7 @@ from transformers import (
     DataCollatorWithPadding,
     BitsAndBytesConfig,
 )
+from tokenizers.processors import TemplateProcessing
 from trl import SFTConfig, SFTTrainer
 from peft import (
     prepare_model_for_kbit_training, 
@@ -21,18 +22,29 @@ from peft import (
 from datasets import load_dataset
 from accelerate import Accelerator
 
+resume = False
 repo = 'charlieCs/Open-Solar-ko-10B-dacon-qa'
+
+data_path = "/home/jovyan/work/prj_data/open/train.csv"
+# max_length = 1280 # max_token
 
 #################
 # 데이터셋 정의 #
 #################
 
 tokenizer = AutoTokenizer.from_pretrained(repo)
-dataset = load_dataset("csv", data_files="/home/jovyan/work/prj_data/open/train.csv")
-max_length = 1280
+dataset = load_dataset("csv", data_files=data_path)
 
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "right"
+tokenizer.backend_tokenizer.post_processor = TemplateProcessing(
+    single="<s> $A </s>",
+    pair="<s> $A <s> $B </s>",
+    special_tokens=[
+        ("<s>", tokenizer.convert_tokens_to_ids("<s>")),
+        ("</s>", tokenizer.convert_tokens_to_ids("</s>"))
+    ],
+)
 
 def preprocess_function(examples):
     question, context, answer = examples["question"], examples["context"], examples["answer"]
@@ -48,9 +60,10 @@ def preprocess_function(examples):
         question,
         context,
         return_offsets_mapping=True,
+        truncation=False,
+        # truncation=True
         # max_length=max_length, 
-        truncation=True, 
-        padding="max_length",
+        # padding="max_length",
     )
 
     start_char = context.find(answer)
@@ -166,4 +179,7 @@ trainer = Trainer(
     data_collator=DataCollatorWithPadding(tokenizer=tokenizer)
 )
 
-trainer.train()
+if resume:
+    trainer.train(resume_from_checkpoint=repo)
+else:
+    trainer.train()
