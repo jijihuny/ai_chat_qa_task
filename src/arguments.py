@@ -27,6 +27,7 @@ class DatasetConfig:
     name: str | None = HfArg(default=None)
     shuffle: bool = HfArg(default=True)
     test_size: float | None = HfArg(default=0.9)
+    include_answer: bool | None = HfArg(default=False)
 
 
 @dataclass
@@ -63,6 +64,7 @@ class GenerationConfig:
 class TrainConfig:
     instruction_template: str | None = HfArg(default=None)
     response_template: str | None = HfArg(default=None)
+    use_completion_only_data_collator: bool = HfArg(default=True)
     quantization: BitsAndBytesConfig = HfArg(
         default_factory=lambda: BitsAndBytesConfig(
             load_in_4bit=True,

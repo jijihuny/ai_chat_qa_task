@@ -4,6 +4,7 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     EvalPrediction,
+    DataCollatorForLanguageModeling,
 )
 from transformers.hf_argparser import HfArgumentParser
 from peft import get_peft_model, prepare_model_for_kbit_training
@@ -40,15 +41,21 @@ class Trainer(Base):
         self.model = get_peft_model(self.model, self.args.train.lora)
 
     def _prepare_data_collator(self: Self) -> DataCollatorForCompletionOnlyLM:
-        self.data_collator = DataCollatorForCompletionOnlyLM(
-            tokenizer=self.tokenizer,
-            response_template=self.args.train.response_template,
-        )
+        if self.args.train.use_completion_only_data_collator:
+            self.data_collator = DataCollatorForCompletionOnlyLM(
+                tokenizer=self.tokenizer,
+                response_template=self.args.train.response_template,
+            )
+        else:
+            self.data_collator = DataCollatorForLanguageModeling(
+                tokenizer=self.tokenizer, mlm=False
+            )
         return self.data_collator
 
     def prepare_trainer(self: Self):
-        def formatting_func(dataset) -> list[str]:
-            return dataset["text"]
+        def formatting_func(examples) -> list[str]:
+            formatter = self._chat_prompt_format_func()
+            return [formatter(example) for example in examples]
 
         def compute_metrics(eval_pred: EvalPrediction):
             predictions = eval_pred.predictions

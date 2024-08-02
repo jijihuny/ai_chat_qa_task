@@ -9,8 +9,14 @@ from transformers import (
 )
 from datasets import load_dataset, Dataset
 from evaluate import load, Metric
-from typing import Self, Tuple, Callable, Dict
+from typing import Self, Tuple, Callable, Dict, Literal, Union, TypedDict
 from arguments import Config
+
+
+class Example(TypedDict):
+    context: str
+    question: str
+    answer: str
 
 
 class Base:
@@ -57,20 +63,17 @@ class Base:
                 seed=self.args.seed,
             )
 
-        formatter = self._chat_prompt_format_func()
-        self.dataset = self.dataset.map(formatter)
-
         return self.dataset
 
     def prepare_metric(self: Self) -> Metric:
         self.metric = load(path=self.args.metric.path)
         return self.metric
 
-    def _chat_prompt_format_func(self: Self) -> Callable[[Dict[str, str]], str]:
+    def _chat_prompt_format_func(self: Self) -> Callable[[Example], str]:
         if not hasattr(self, "user_message_template"):
             self.user_message_template = """Context: {context}\nQuestion: {question}"""
 
-        def formatter(example: Dict[str, str]) -> str:
+        def formatter(example: Example) -> str:
             conversation = [
                 {"role": "system", "content": self.args.model.system_prompt},
                 {
@@ -80,8 +83,14 @@ class Base:
                     ),
                 },
             ]
+            if self.args.dataset.include_answer:
+                conversation += {"role": "assistant", "content": example["answer"]}
             return self.tokenizer.apply_chat_template(
-                conversation=conversation, tokenize=False, add_generation_prompt=True
+                conversation=conversation,
+                tokenize=False,
+                add_generation_prompt=(
+                    True if self.args.dataset.include_answer else False
+                ),
             )
 
         return formatter

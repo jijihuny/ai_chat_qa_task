@@ -10,6 +10,7 @@ dataset:
   name: null
   shuffle: true
   test_size: 0.9
+  include_answer: false
 metric:
   path: null
 generation:
@@ -41,6 +42,7 @@ generation:
 train:
   instruction_template: "<|start_header_id|>user<|end_header_id|>"
   response_template: "<|start_header_id|>assistant<|end_header_id|>"
+  use_completion_only_data_collator: true
   quantization:
     load_in_4bit: true
     bnb_4bit_quant_type: nf4
