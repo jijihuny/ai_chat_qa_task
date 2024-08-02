@@ -84,7 +84,7 @@ class Base:
                 },
             ]
             if self.args.dataset.include_answer:
-                conversation += {"role": "assistant", "content": example["answer"]}
+                conversation += [{"role": "assistant", "content": example["answer"]}]
             return self.tokenizer.apply_chat_template(
                 conversation=conversation,
                 tokenize=False,

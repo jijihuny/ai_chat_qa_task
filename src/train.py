@@ -9,7 +9,9 @@ from transformers import (
 from transformers.hf_argparser import HfArgumentParser
 from peft import get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
+from torch import Tensor
 from typing import Self, Tuple
+from re import search
 from base import Base
 from arguments import Arguments, Config
 
@@ -25,7 +27,7 @@ class Trainer(Base):
         self.prepare_trainer()
 
     def prepare_model(self: Self) -> Tuple[PreTrainedModel, PreTrainedTokenizer]:
-        self.model = AutoModelForCausalLM.from_pretrained(
+        self.model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
             self.args.model.path,
             torch_dtype=self.args.model.torch_dtype,
             device_map=self.args.model.device_map,
@@ -33,12 +35,14 @@ class Trainer(Base):
             quantization_config=self.args.train.quantization,
         )
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
+        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(
             self.args.model.path, device_map=self.args.model.device_map
         )
 
         self.model = prepare_model_for_kbit_training(self.model)
         self.model = get_peft_model(self.model, self.args.train.lora)
+
+        return self.model, self.tokenizer
 
     def _prepare_data_collator(self: Self) -> DataCollatorForCompletionOnlyLM:
         if self.args.train.use_completion_only_data_collator:
@@ -53,15 +57,33 @@ class Trainer(Base):
         return self.data_collator
 
     def prepare_trainer(self: Self):
+        formatter = self._chat_prompt_format_func()
+
         def formatting_func(examples) -> list[str]:
-            formatter = self._chat_prompt_format_func()
-            return [formatter(example) for example in examples]
+            return [
+                formatter({"context": context, "question": question, "answer": answer})
+                for context, question, answer in zip(
+                    examples["context"], examples["question"], examples["answer"]
+                )
+            ]
+
+        ANSWER_REGEXP = "\<\|start_header_id\|\>assistant\<\|end_header_id\|\>\n\n(.+)\<\|eot_id\|\>"
 
         def compute_metrics(eval_pred: EvalPrediction):
             predictions = eval_pred.predictions
             label_ids = eval_pred.label_ids
+            predictions = self.tokenizer.decode(predictions)
+            references = self.tokenizer.decode(label_ids)
 
-            print(predictions, label_ids)
+            predictions = [search(ANSWER_REGEXP, p).group(0) for p in predictions]
+            references = [search(ANSWER_REGEXP, r).group(0) for r in references]
+
+            return self.metric.compute(predictions=predictions, references=references)
+
+        def preprocess_logits_for_metrics(logits: Tensor, label_ids: Tensor) -> Tensor:
+            if isinstance(logits, tuple):
+                logits = logits[0]
+            return logits.argmax(dim=-1)
 
         self.trainer = SFTTrainer(
             model=self.model,
@@ -73,6 +95,7 @@ class Trainer(Base):
             formatting_func=formatting_func,
             peft_config=self.args.train.lora,
             compute_metrics=compute_metrics,
+            preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         )
 
     def __call__(self: Self):
