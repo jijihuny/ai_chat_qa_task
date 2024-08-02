@@ -1,0 +1,242 @@
+{
+    "os": "Linux-5.4.0-125-generic-x86_64-with-glibc2.35",
+    "python": "3.9.19",
+    "heartbeatAt": "2024-08-01T04:09:35.350011",
+    "startedAt": "2024-08-01T04:09:34.583827",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/home/jovyan/work/code/huggingface/train_qa.py",
+    "codePathLocal": "train_qa.py",
+    "codePath": "train_qa.py",
+    "host": "jupyter-907--640",
+    "username": "jovyan",
+    "executable": "/opt/conda/envs/qa/bin/python",
+    "cpu_count": 20,
+    "cpu_count_logical": 40,
+    "cpu_freq": {
+        "current": 1642.7302999999997,
+        "min": 1200.0,
+        "max": 3600.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1499.262,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2198.822,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2178.143,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.105,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2170.279,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.965,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.235,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1217.032,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2201.618,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1303.533,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2198.821,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1623.708,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1276.669,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1201.469,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2698.554,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2131.956,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.974,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1197.644,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1305.963,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2198.887,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1505.261,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2197.854,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2197.554,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.364,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2038.998,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.761,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1205.507,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1434.626,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2198.823,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1299.636,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2198.507,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1575.187,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1262.959,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.516,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2698.329,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2162.748,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.192,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1199.242,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 1303.76,
+            "min": 1200.0,
+            "max": 3600.0
+        },
+        {
+            "current": 2198.427,
+            "min": 1200.0,
+            "max": 3600.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 1757.8785285949707,
+            "used": 442.9645309448242
+        }
+    },
+    "gpu": "Tesla V100-DGXS-32GB",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "Tesla V100-DGXS-32GB",
+            "memory_total": 34359738368
+        }
+    ],
+    "memory": {
+        "total": 251.62263107299805
+    }
+}
