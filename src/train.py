@@ -72,8 +72,8 @@ class Trainer(Base):
         def compute_metrics(eval_pred: EvalPrediction):
             predictions = eval_pred.predictions
             label_ids = eval_pred.label_ids
-            predictions = self.tokenizer.decode(predictions)
-            references = self.tokenizer.decode(label_ids)
+            predictions = self.tokenizer.batch_decode(predictions.long())
+            references = self.tokenizer.batch_decode(label_ids.long())
 
             predictions = [search(ANSWER_REGEXP, p).group(0) for p in predictions]
             references = [search(ANSWER_REGEXP, r).group(0) for r in references]
