@@ -10,6 +10,7 @@ from transformers.hf_argparser import HfArgumentParser
 from peft import get_peft_model, prepare_model_for_kbit_training
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from torch import Tensor
+import numpy as np
 from typing import Self, Tuple
 from re import search
 from base import Base
@@ -72,6 +73,21 @@ class Trainer(Base):
         def compute_metrics(eval_pred: EvalPrediction):
             predictions = eval_pred.predictions
             label_ids = eval_pred.label_ids
+            
+            if isinstance(predictions, Tensor):
+                predictions = predictions.long()
+            elif isinstance(predictions, np.ndarray):
+                predictions = predictions.astype(np.int32)
+            elif isinstance(predictions, list):
+                predictions = [[int(token) for token in pred] for pred in predictions]
+
+            if isinstance(label_ids, Tensor):
+                label_ids = label_ids.long()
+            elif isinstance(label_ids, np.ndarray):
+                label_ids = label_ids.astype(np.int32)
+            elif isinstance(label_ids, list):
+                label_ids = [[int(token) for token in label] for label in label_ids]
+
             predictions = self.tokenizer.batch_decode(predictions.long())
             references = self.tokenizer.batch_decode(label_ids.long())
 
