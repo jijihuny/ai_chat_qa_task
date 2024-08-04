@@ -72,16 +72,16 @@ class Trainer(Base):
 
         def compute_metrics(eval_pred: EvalPrediction):
             predictions, label_ids = eval_pred
-            
+
             if isinstance(predictions, np.ndarray):
-                predictions = predictions.astype(np.int32)
+                predictions = [predictions[predictions >= 0].astype(np.int32)]
             elif isinstance(predictions, tuple):
-                predictions = np.asarray(predictions, np.int32)
+                predictions = [pred[pred >= 0].astype(np.int32) for pred in predictions]
 
             if isinstance(label_ids, np.ndarray):
-                label_ids = label_ids.astype(np.int32)
+                label_ids = [label_ids[label_ids >= 0].astype(np.int32)]
             elif isinstance(label_ids, tuple):
-                label_ids = np.asarray(label_ids, np.int32)
+                label_ids = [label[label >= 0].astype(np.int32) for label in label_ids]
 
             predictions = self.tokenizer.batch_decode(predictions)
             references = self.tokenizer.batch_decode(label_ids)
