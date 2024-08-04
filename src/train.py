@@ -74,14 +74,14 @@ class Trainer(Base):
             predictions, label_ids = eval_pred
             
             if isinstance(predictions, np.ndarray):
-                predictions = predictions.astype(np.int64)
+                predictions = predictions.astype(np.int32)
             elif isinstance(predictions, tuple):
-                predictions = np.asarray(predictions, np.int64)
+                predictions = np.asarray(predictions, np.int32)
 
             if isinstance(label_ids, np.ndarray):
                 label_ids = label_ids.astype(np.int32)
             elif isinstance(label_ids, tuple):
-                label_ids = np.asarray(label_ids, np.int64)
+                label_ids = np.asarray(label_ids, np.int32)
 
             predictions = self.tokenizer.batch_decode(predictions)
             references = self.tokenizer.batch_decode(label_ids)
