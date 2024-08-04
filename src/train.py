@@ -71,28 +71,23 @@ class Trainer(Base):
         ANSWER_REGEXP = "\<\|start_header_id\|\>assistant\<\|end_header_id\|\>\n\n(.+)\<\|eot_id\|\>"
 
         def compute_metrics(eval_pred: EvalPrediction):
-            predictions = eval_pred.predictions
-            label_ids = eval_pred.label_ids
+            predictions, label_ids = eval_pred
             
-            if isinstance(predictions, Tensor):
-                predictions = predictions.long()
-            elif isinstance(predictions, np.ndarray):
-                predictions = predictions.astype(np.int32)
-            elif isinstance(predictions, list):
-                predictions = [[int(token) for token in pred] for pred in predictions]
+            if isinstance(predictions, np.ndarray):
+                predictions = predictions.astype(np.int64)
+            elif isinstance(predictions, tuple):
+                predictions = np.asarray(predictions, np.int64)
 
-            if isinstance(label_ids, Tensor):
-                label_ids = label_ids.long()
-            elif isinstance(label_ids, np.ndarray):
+            if isinstance(label_ids, np.ndarray):
                 label_ids = label_ids.astype(np.int32)
-            elif isinstance(label_ids, list):
-                label_ids = [[int(token) for token in label] for label in label_ids]
+            elif isinstance(label_ids, tuple):
+                label_ids = np.asarray(label_ids, np.int64)
 
-            predictions = self.tokenizer.batch_decode(predictions.long())
-            references = self.tokenizer.batch_decode(label_ids.long())
+            predictions = self.tokenizer.batch_decode(predictions)
+            references = self.tokenizer.batch_decode(label_ids)
 
-            predictions = [search(ANSWER_REGEXP, p).group(0) for p in predictions]
-            references = [search(ANSWER_REGEXP, r).group(0) for r in references]
+            predictions = [search(ANSWER_REGEXP, p).group(1) for p in predictions]
+            references = [search(ANSWER_REGEXP, r).group(1) for r in references]
 
             return self.metric.compute(predictions=predictions, references=references)
 
