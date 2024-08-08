@@ -16,7 +16,8 @@ class Evaluator(Base):
         self.prepare_metric()
 
     def __call__(self: Self):
-        eval_sample = self.dataset["test"]
+        formatter = self._chat_prompt_format_func()
+        eval_sample = self.dataset["test"].map(lambda x : {"text": formatter})
         predictions = []
 
         for example in tqdm(eval_sample["text"]):
@@ -50,7 +51,7 @@ def main():
     config_path = base / "config.yaml"
     config_yaml = None
     with config_path.open('r') as input:
-        config_yaml = yaml.load(input)
+        config_yaml = yaml.load(input, Loader=yaml.FullLoader)
 
     config: Config = parser.parse_dict(config_yaml)[1]
     evaluator = Evaluator(config)

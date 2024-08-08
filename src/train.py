@@ -56,7 +56,7 @@ class Trainer(Base):
 
         return self.model, self.tokenizer
 
-    def _prepare_data_collator(self: Self) -> DataCollatorForCompletionOnlyLM:
+    def _prepare_data_collator(self: Self) -> DataCollatorForCompletionOnlyLM | DataCollatorForLanguageModeling:
         if self.args.train.use_completion_only_data_collator:
             self.data_collator = DataCollatorForCompletionOnlyLM(
                 tokenizer=self.tokenizer,

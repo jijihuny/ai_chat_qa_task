@@ -12,7 +12,6 @@ class Arguments:
 
 @dataclass
 class ModelConfig:
-    _argument_group_name: str = "model"
     task: str = HfArg(default="text-generation")
     system_prompt: str = HfArg(default="너는 유능한 챗봇이야")
     path: str = HfArg(default="meta-llama/Meta-Llama-3-8B")
