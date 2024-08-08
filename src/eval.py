@@ -65,7 +65,7 @@ def main():
     results, frame = evaluator()
 
     output_path = base / "eval" / str(args.name)
-    output_path.mkdir(exist_ok=True)
+    output_path.mkdir(exist_ok=True, parents=True)
     with (output_path / "result.yaml").open("w") as output:
         yaml.dump(results, output)
     with (output_path / "config_yaml").open("w") as output:
