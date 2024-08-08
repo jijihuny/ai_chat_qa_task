@@ -1,6 +1,7 @@
 from transformers.hf_argparser import HfArgumentParser
+from datasets import Dataset
 from tqdm import tqdm
-from typing import Self, Dict
+from typing import Self, Dict, Iterable
 import pandas as pd
 from base import Base
 from arguments import Arguments, Config, GenerationConfig
@@ -16,20 +17,28 @@ class Evaluator(Base):
 
     def __call__(self: Self):
         formatter = self._chat_prompt_format_func()
-        eval_sample = self.dataset["test"].map(lambda x : {"text": formatter(x)})
+        eval_sample = self.dataset["test"].map(lambda x: {"text": formatter(x)})
         predictions = []
 
         if isinstance(self.args.generation, GenerationConfig):
             self.args.generation = self.args.generation.__dict__
 
-        for example in tqdm(eval_sample["text"]):
+        def batch(iterable: Iterable, size: int = 4):
+            def iter():
+                for i in range(0, len(iterable), size):
+                    yield iterable[i : i + size]
+
+            total_batches = (len(iterable) + size - 1) // size
+            return tqdm(iter(), total=total_batches, desc="evaluation..")
+
+        for example in batch(eval_sample["text"], 4):
             generated = self.generator(example, **self.args.generation)[0][
                 "generated_text"
             ]
             predictions += [generated]
 
         if self.args.metric.only_inference:
-            return list(zip(eval_sample['id'], predictions))
+            return list(zip(eval_sample["id"], predictions))
         else:
             references = eval_sample["answer"]
 
@@ -37,22 +46,24 @@ class Evaluator(Base):
                 predictions=predictions, references=references
             )
 
-            return self.results, list(zip(eval_sample['id'], predictions, references))
+            return self.results, list(zip(eval_sample["id"], predictions, references))
+
 
 import yaml
 import os
 from os.path import join
 from pathlib import Path
 
+
 def main():
     parser = HfArgumentParser(dataclass_types=[Arguments, Config])
     args: Arguments = parser.parse_args_into_dataclasses()[0]
-    
+
     cwd = os.getcwd()
     base = Path(cwd)
     config_path = base / "config.yaml"
     config_yaml = None
-    with config_path.open('r') as input:
+    with config_path.open("r") as input:
         config_yaml = yaml.load(input, Loader=yaml.FullLoader)
 
     config: Config = parser.parse_dict(config_yaml)[1]
@@ -61,20 +72,17 @@ def main():
 
     output_path = base / "eval" / str(args.name)
     output_path.mkdir(exist_ok=True)
-    with (output_path / "result.yaml").open('w') as output:
+    with (output_path / "result.yaml").open("w") as output:
         yaml.dump(results, output)
-    with (output_path / "config_yaml").open('w') as output:
+    with (output_path / "config_yaml").open("w") as output:
         yaml.dump(config_yaml, output)
 
     if config.metric.only_inference:
-        columns=["id", "answer"]
+        columns = ["id", "answer"]
     else:
-        columns=["id", "pred", "label"]
-    
-    df = pd.DataFrame(
-        frame,
-        columns=columns
-    )
+        columns = ["id", "pred", "label"]
+
+    df = pd.DataFrame(frame, columns=columns)
     df.to_csv((output_path / "result.csv"))
 
 

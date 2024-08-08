@@ -7,11 +7,7 @@ from transformers import (
     DataCollatorForLanguageModeling,
 )
 from transformers.hf_argparser import HfArgumentParser
-from peft import (
-    get_peft_model, 
-    prepare_model_for_kbit_training,
-    PeftModel
-)
+from peft import get_peft_model, prepare_model_for_kbit_training, PeftModel
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from torch import Tensor
 import numpy as np
@@ -45,10 +41,12 @@ class Trainer(Base):
                 self.model,
                 self.args.train.peft_model_path,
                 is_trainable=True,
-                revision=self.args.model.peft_revision 
+                revision=self.args.model.peft_revision,
             )
         else:
-            self.model: PreTrainedModel = get_peft_model(self.model, self.args.train.lora)
+            self.model: PreTrainedModel = get_peft_model(
+                self.model, self.args.train.lora
+            )
 
         self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(
             self.args.model.path, device_map=self.args.model.device_map
@@ -56,7 +54,9 @@ class Trainer(Base):
 
         return self.model, self.tokenizer
 
-    def _prepare_data_collator(self: Self) -> DataCollatorForCompletionOnlyLM | DataCollatorForLanguageModeling:
+    def _prepare_data_collator(
+        self: Self,
+    ) -> DataCollatorForCompletionOnlyLM | DataCollatorForLanguageModeling:
         if self.args.train.use_completion_only_data_collator:
             self.data_collator = DataCollatorForCompletionOnlyLM(
                 tokenizer=self.tokenizer,

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Arguments:
-    name: str | None = HfArg(default="experiment", aliases=['-n'])
+    name: str | None = HfArg(default="experiment", aliases=["-n"])
 
 
 @dataclass
@@ -62,6 +62,7 @@ class GenerationConfig:
 
     num_beams: int | None = HfArg(default=None)
     length_penalty: float | None = HfArg(default=None)
+
 
 @dataclass
 class TrainConfig:
