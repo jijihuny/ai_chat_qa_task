@@ -17,7 +17,7 @@ class Evaluator(Base):
 
     def __call__(self: Self):
         formatter = self._chat_prompt_format_func()
-        eval_sample = self.dataset["test"].map(lambda x : {"text": formatter})
+        eval_sample = self.dataset["test"].map(lambda x : {"text": formatter(x)})
         predictions = []
 
         for example in tqdm(eval_sample["text"]):
