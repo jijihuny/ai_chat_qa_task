@@ -34,6 +34,7 @@ class Base:
             torch_dtype=self.args.model.torch_dtype,
             device_map=self.args.model.device_map,
             attn_implementation=self.args.model.attn_implementation,
+            peft_kwargs={'revision': self.args.model.peft_revision}
         )
         self.tokenizer: PreTrainedModel = AutoTokenizer.from_pretrained(
             self.args.model.path, device_map=self.args.model.device_map
@@ -56,12 +57,14 @@ class Base:
     def prepare_data(self: Self) -> Dataset:
         self.dataset = load_dataset(self.args.dataset.path, self.args.dataset.name)
 
-        if self.args.dataset.test_size is not None:
+        if self.args.dataset.test_size:
             self.dataset = self.dataset["train"].train_test_split(
                 test_size=self.args.dataset.test_size,
                 shuffle=self.args.dataset.shuffle,
                 seed=self.args.seed,
             )
+        elif self.args.dataset.shuffle:
+            self.dataset = self.dataset.shuffle(seed=self.args.seed)
 
         return self.dataset
 
@@ -89,7 +92,7 @@ class Base:
                 conversation=conversation,
                 tokenize=False,
                 add_generation_prompt=(
-                    True if self.args.dataset.include_answer else False
+                    False if self.args.dataset.include_answer else True
                 ),
             )
 

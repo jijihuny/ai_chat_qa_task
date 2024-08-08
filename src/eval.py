@@ -25,38 +25,54 @@ class Evaluator(Base):
             ]
             predictions += [generated]
 
-        references = eval_sample["answer"]
+        if self.args.metric.only_inference:
+            return list(zip(eval_sample['id'], predictions))
+        else:
+            references = eval_sample["answer"]
 
-        self.results = self.metric.compute(
-            predictions=predictions, references=references
-        )
+            self.results = self.metric.compute(
+                predictions=predictions, references=references
+            )
 
-        return self.results, {"predictions": predictions, "references": references}
+            return self.results, list(zip(eval_sample['id'], predictions, references))
 
-
+import yaml
 import os
 from os.path import join
-
+from pathlib import Path
 
 def main():
     parser = HfArgumentParser(dataclass_types=[Arguments, Config])
-    cwd = os.getcwd()
     args: Arguments = parser.parse_args_into_dataclasses()[0]
-    path = join(cwd, args.config, "config.yaml")
-    pargs: Config = parser.parse_yaml_file(path)[1]
-    evaluator = Evaluator(pargs)
+    
+    cwd = os.getcwd()
+    base = Path(cwd)
+    config_path = base / "config.yaml"
+    config_yaml = None
+    with config_path.open('r') as input:
+        config_yaml = yaml.load(input)
+
+    config: Config = parser.parse_dict(config_yaml)[1]
+    evaluator = Evaluator(config)
     results, frame = evaluator()
 
-    import yaml
-
-    with open(join(cwd, args.config, "results.yaml"), "w") as output:
+    output_path = base / "eval" / str(args.name)
+    output_path.mkdir(exist_ok=True)
+    with (output_path / "result.yaml").open('w') as output:
         yaml.dump(results, output)
+    with (output_path / "config_yaml").open('w') as output:
+        yaml.dump(config_yaml, output)
 
+    if config.metric.only_inference:
+        columns=["id", "answer"]
+    else:
+        columns=["id", "pred", "label"]
+    
     df = pd.DataFrame(
-        list(zip(frame["predictions"], frame["references"])),
-        columns=["predictions", "references"],
+        frame,
+        columns=columns
     )
-    df.to_csv(join(cwd, args.config, "result.csv"))
+    df.to_csv((output_path / "result.csv"))
 
 
 if __name__ == "__main__":

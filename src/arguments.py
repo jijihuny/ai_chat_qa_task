@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Arguments:
-    config: str | None = HfArg(default="experiment")
+    name: str | None = HfArg(default="experiment", aliases=['-n'])
 
 
 @dataclass
@@ -19,6 +19,7 @@ class ModelConfig:
     torch_dtype: str = HfArg(default="auto")
     device_map: str = HfArg(default="auto")
     attn_implementation: str | None = HfArg(default=None)
+    peft_revision: str | None = HfArg(default=None)
 
 
 @dataclass
@@ -33,12 +34,13 @@ class DatasetConfig:
 @dataclass
 class MetricConfig:
     path: str | None = HfArg(default=None)
+    only_inference: bool | None = HfArg(default=None)
 
 
 @dataclass
 class GenerationConfig:
     return_full_text: bool = HfArg(default=False)
-    max_new_token: int | None = HfArg(default=None)
+    max_new_tokens: int | None = HfArg(default=None)
 
     do_sample: bool = HfArg(default=False, help="sampling 여부")
     top_k: int | None = HfArg(default=1, help="상위 K", metadata={"type": int})
@@ -59,9 +61,12 @@ class GenerationConfig:
 
     dola_layers: str | None = HfArg(default=None, help="DoLa")
 
+    num_beams: int | None = HfArg(default=None)
+    length_penalty: float | None = HfArg(default=None)
 
 @dataclass
 class TrainConfig:
+    peft_model_path: str | None = HfArg(default=None)
     instruction_template: str | None = HfArg(default=None)
     response_template: str | None = HfArg(default=None)
     use_completion_only_data_collator: bool = HfArg(default=True)
