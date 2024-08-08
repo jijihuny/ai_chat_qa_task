@@ -32,10 +32,8 @@ class Evaluator(Base):
             return tqdm(iter(), total=total_batches, desc="evaluation..")
 
         for example in batch(eval_sample["text"], 4):
-            generated = self.generator(example, **self.args.generation)[0][
-                "generated_text"
-            ]
-            predictions += [generated]
+            generated = self.generator(example, **self.args.generation)
+            predictions += [gen[0]['generated_text'] for gen in generated]
 
         if self.args.metric.only_inference:
             return list(zip(eval_sample["id"], predictions))

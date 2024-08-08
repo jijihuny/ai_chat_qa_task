@@ -33,6 +33,7 @@ class Trainer(Base):
             torch_dtype=self.args.model.torch_dtype,
             device_map=self.args.model.device_map,
             attn_implementation=self.args.model.attn_implementation,
+            revision=self.args.model.revision,
             quantization_config=self.args.train.quantization,
         )
         self.model: PreTrainedModel = prepare_model_for_kbit_training(self.model)

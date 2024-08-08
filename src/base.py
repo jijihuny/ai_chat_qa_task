@@ -34,6 +34,7 @@ class Base:
             torch_dtype=self.args.model.torch_dtype,
             device_map=self.args.model.device_map,
             attn_implementation=self.args.model.attn_implementation,
+            revision=self.args.model.revision,
             adapter_kwargs={"revision": self.args.model.peft_revision},
         )
         self.tokenizer: PreTrainedModel = AutoTokenizer.from_pretrained(

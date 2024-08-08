@@ -18,6 +18,7 @@ class ModelConfig:
     torch_dtype: str = HfArg(default="auto")
     device_map: str = HfArg(default="auto")
     attn_implementation: str | None = HfArg(default=None)
+    revision: str | None = HfArg(default=None)
     peft_revision: str | None = HfArg(default=None)
 
 
