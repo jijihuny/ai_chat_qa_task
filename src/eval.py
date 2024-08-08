@@ -1,10 +1,9 @@
 from transformers.hf_argparser import HfArgumentParser
 from tqdm import tqdm
 from typing import Self, Dict
-from omegaconf import OmegaConf
 import pandas as pd
 from base import Base
-from arguments import Arguments, Config
+from arguments import Arguments, Config, GenerationConfig
 
 
 class Evaluator(Base):
@@ -19,6 +18,9 @@ class Evaluator(Base):
         formatter = self._chat_prompt_format_func()
         eval_sample = self.dataset["test"].map(lambda x : {"text": formatter(x)})
         predictions = []
+
+        if isinstance(self.args.generation, GenerationConfig):
+            self.args.generation = self.args.generation.__dict__
 
         for example in tqdm(eval_sample["text"]):
             generated = self.generator(example, **self.args.generation)[0][
