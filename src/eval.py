@@ -23,16 +23,12 @@ class Evaluator(Base):
         if isinstance(self.args.generation, GenerationConfig):
             self.args.generation = self.args.generation.__dict__
 
-        def batch(iterable: Iterable, size: int = 4):
-            def iter():
-                for i in range(0, len(iterable), size):
-                    yield iterable[i : i + size]
-
+        def batch(iterable: Dataset, size: int = 4):
             total_batches = (len(iterable) + size - 1) // size
-            return tqdm(iter(), total=total_batches, desc="evaluation..")
+            return tqdm(iterable.iter(size), total=total_batches, desc="evaluation..")
 
-        for example in batch(eval_sample["text"], 4):
-            generated = self.generator(example, **self.args.generation)
+        for examples in batch(eval_sample, 4):
+            generated = self.generator(examples['text'], **self.args.generation)
             predictions += [gen[0]['generated_text'] for gen in generated]
 
         if self.args.metric.only_inference:
