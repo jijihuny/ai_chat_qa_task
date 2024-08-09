@@ -79,7 +79,7 @@ def main():
         columns = ["id", "pred", "label"]
 
     df = pd.DataFrame(frame, columns=columns)
-    df.to_csv((output_path / "result.csv"))
+    df.to_csv((output_path / "result.csv"), index=False)
 
 
 if __name__ == "__main__":
