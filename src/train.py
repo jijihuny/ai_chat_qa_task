@@ -128,18 +128,30 @@ class Trainer(Base):
             self.trainer.train()
 
 
+import yaml
 import os
-from os.path import join
+from pathlib import Path
 
 
 def main():
-    parser = HfArgumentParser([Arguments, Config])
-    cwd = os.getcwd()
+    parser = HfArgumentParser(dataclass_types=[Arguments, Config])
     args: Arguments = parser.parse_args_into_dataclasses()[0]
-    path = join(cwd, args.config, "config.yaml")
-    pargs: Config = parser.parse_yaml_file(path)[1]
 
-    trainer = Trainer(pargs)
+    cwd = os.getcwd()
+    base = Path(cwd)
+    config_path = base / "config.yaml"
+    config_yaml = None
+    with config_path.open("r") as input:
+        config_yaml = yaml.load(input, Loader=yaml.FullLoader)
+
+    config: Config = parser.parse_dict(config_yaml)[1]
+    output_path = base / "train" / str(args.name)
+    output_path.mkdir(exist_ok=True, parents=True)
+    with (output_path / "config_yaml").open("w") as output:
+        yaml.dump(config_yaml, output)
+
+    config.train.args.output_dir = output_path
+    trainer = Trainer(config)
     trainer()
 
 
