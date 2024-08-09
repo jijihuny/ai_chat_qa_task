@@ -28,11 +28,11 @@ class Evaluator(Base):
             return tqdm(iterable.iter(size), total=total_batches, desc="evaluation..")
 
         for examples in batch(eval_sample, 4):
-            generated = self.generator(examples['text'], **self.args.generation)
-            predictions += [gen[0]['generated_text'] for gen in generated]
+            generated = self.generator(examples["text"], **self.args.generation)
+            predictions += [gen[0]["generated_text"] for gen in generated]
 
         if self.args.metric.only_inference:
-            return list(zip(eval_sample["id"], predictions))
+            return {}, list(zip(eval_sample["id"], predictions))
         else:
             references = eval_sample["answer"]
 
@@ -62,12 +62,14 @@ def main():
 
     config: Config = parser.parse_dict(config_yaml)[1]
     evaluator = Evaluator(config)
+
     results, frame = evaluator()
 
     output_path = base / "eval" / str(args.name)
     output_path.mkdir(exist_ok=True, parents=True)
-    with (output_path / "result.yaml").open("w") as output:
-        yaml.dump(results, output)
+    if config.metric.only_inference != True:
+        with (output_path / "result.yaml").open("w") as output:
+            yaml.dump(results, output)
     with (output_path / "config_yaml").open("w") as output:
         yaml.dump(config_yaml, output)
 
