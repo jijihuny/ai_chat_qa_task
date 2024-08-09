@@ -1,9 +1,4 @@
-from transformers import pipeline, AutoModelForCausalLM, AutoTokenizer
-from peft import PeftModelForCausalLM
-from accelerate import Accelerator
-import pandas as pd
-from tqdm import tqdm
-
+from transformers import pipeline
 TEST_fOLDER = '/home/jovyan/work/prj_data/open/test.csv'
 MODEL = "MLP-KTLim/llama-3-Korean-Bllossom-8B"
 CHECK_POINT = "llama3/checkpoint-16858/"
