@@ -85,9 +85,10 @@ class Trainer(Base):
 
         def compute_metrics(eval_pred: EvalPrediction):
             predictions, label_ids = eval_pred
-
-            total_loss = cross_entropy(Tensor(predictions), LongTensor(label_ids))
-
+            N, length = label_ids.shape
+            total_loss = cross_entropy(
+                Tensor(predictions).view(N, -1, length), LongTensor(label_ids)
+            )
             if isinstance(predictions, np.ndarray):
                 predictions = [predictions[predictions >= 0].astype(np.int32)]
             elif isinstance(predictions, tuple):
@@ -122,7 +123,7 @@ class Trainer(Base):
             formatting_func=formatting_func,
             peft_config=self.args.train.lora,
             compute_metrics=compute_metrics,
-            preprocess_logits_for_metrics=preprocess_logits_for_metrics,
+            # preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         )
 
     def __call__(self: Self):
