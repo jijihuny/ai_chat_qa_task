@@ -9,7 +9,8 @@ from transformers import (
 from transformers.hf_argparser import HfArgumentParser
 from peft import get_peft_model, prepare_model_for_kbit_training, PeftModel
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
-from torch import Tensor
+from torch import Tensor, LongTensor
+from torch.nn.functional import cross_entropy
 import numpy as np
 from typing import Self, Tuple
 from re import search
@@ -80,10 +81,12 @@ class Trainer(Base):
                 )
             ]
 
-        ANSWER_REGEXP = "\<\|start_header_id\|\>assistant\<\|end_header_id\|\>\n\n(.+)\<\|eot_id\|\>"
+        # ANSWER_REGEXP = "\<\|start_header_id\|\>assistant\<\|end_header_id\|\>\n\n(.+)\<\|eot_id\|\>"
 
         def compute_metrics(eval_pred: EvalPrediction):
             predictions, label_ids = eval_pred
+
+            total_loss = cross_entropy(Tensor(predictions), LongTensor(label_ids))
 
             if isinstance(predictions, np.ndarray):
                 predictions = [predictions[predictions >= 0].astype(np.int32)]
@@ -98,10 +101,11 @@ class Trainer(Base):
             predictions = self.tokenizer.batch_decode(predictions)
             references = self.tokenizer.batch_decode(label_ids)
 
-            predictions = [search(ANSWER_REGEXP, p).group(1) for p in predictions]
-            references = [search(ANSWER_REGEXP, r).group(1) for r in references]
+            results = self.metric.compute(
+                predictions=predictions, references=references
+            )
 
-            return self.metric.compute(predictions=predictions, references=references)
+            return {"total_loss": total_loss, **results}
 
         def preprocess_logits_for_metrics(logits: Tensor, label_ids: Tensor) -> Tensor:
             if isinstance(logits, tuple):
