@@ -40,6 +40,15 @@ class MetricConfig:
 @dataclass
 class GenerationConfig:
     return_full_text: bool = HfArg(default=False)
+
+    # parameters that define the output variables of generate
+    num_return_sequences: int | None = HfArg(None)
+    output_scores: bool | None = HfArg(False)
+    output_logits: bool | None = HfArg(None)
+    return_dict_in_generate: bool | None = HfArg(False)
+
+    renormalize_logits: bool | None = HfArg(default=None)
+
     max_new_tokens: int | None = HfArg(default=None)
 
     do_sample: bool = HfArg(default=False, help="sampling 여부")
@@ -62,6 +71,8 @@ class GenerationConfig:
     dola_layers: str | None = HfArg(default=None, help="DoLa")
 
     num_beams: int | None = HfArg(default=None)
+    num_beam_groups: int | None = HfArg(default=None)
+    diversity_penelty: float | None = HfArg(default=None)
     length_penalty: float | None = HfArg(default=None)
 
 

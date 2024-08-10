@@ -3,8 +3,10 @@ from datasets import Dataset
 from tqdm import tqdm
 from typing import Self, Dict, Iterable
 import pandas as pd
+from functools import partial
 from base import Base
 from arguments import Arguments, Config, GenerationConfig
+from beam_generation import get_beam_search_sequences
 
 
 class Evaluator(Base):
@@ -27,20 +29,34 @@ class Evaluator(Base):
             total_batches = (len(iterable) + size - 1) // size
             return tqdm(iterable.iter(size), total=total_batches, desc="evaluation..")
 
-        for examples in batch(eval_sample, 4):
-            generated = self.generator(examples["text"], **self.args.generation)
-            predictions += [gen[0]["generated_text"] for gen in generated]
+        if (
+            self.args.generation.num_beams
+            and isinstance(self.args.generation.num_return_sequences, int)
+            and self.args.generation.num_return_sequences > 1
+        ):
+
+            get_sequences = partial(
+                get_beam_search_sequences, model=self.model, tokenizer=self.tokenizer
+            )
+
+            for examples in batch(eval_sample, 4):
+                generated = get_sequences(inputs=examples["text"])
+                predictions += generated
+
+        else:
+            for examples in batch(eval_sample, 4):
+                generated = self.generator(examples["text"], **self.args.generation)
+                predictions += [gen[0]["generated_text"] for gen in generated]
 
         if self.args.metric.only_inference:
             return {}, list(zip(eval_sample["id"], predictions))
         else:
             references = eval_sample["answer"]
-
             self.results = self.metric.compute(
                 predictions=predictions, references=references
             )
 
-            return self.results, list(zip(eval_sample["id"], predictions, references))
+            return self.results, list(zip(eval_sample["id"], references, predictions))
 
 
 import yaml
@@ -78,8 +94,16 @@ def main():
     else:
         columns = ["id", "pred", "label"]
 
-    df = pd.DataFrame(frame, columns=columns)
-    df.to_csv((output_path / "result.csv"), index=False)
+    if (
+        config.generation.num_beams
+        and isinstance(config.generation.num_return_sequences, int)
+        and config.generation.num_return_sequences > 1
+    ):
+        with (output_path / "candidates").open("w") as output:
+            yaml.dum(frame, output)
+    else:
+        df = pd.DataFrame(frame, columns=columns)
+        df.to_csv((output_path / "result.csv"), index=False)
 
 
 if __name__ == "__main__":

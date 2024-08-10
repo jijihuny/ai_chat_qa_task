@@ -17,6 +17,7 @@ from base import Base
 from arguments import Arguments, Config
 from scheduler import CosineScheduleTrainer
 
+
 class Trainer(Base):
     def __init__(self: Self, args: Config):
         super().__init__(args=args)
@@ -85,6 +86,7 @@ class Trainer(Base):
         def compute_metrics(eval_pred: EvalPrediction):
             predictions, label_ids = eval_pred
             N, length = label_ids.shape
+            # TODO memory issue, generation
             total_loss = cross_entropy(
                 Tensor(predictions).view(N, -1, length), LongTensor(label_ids)
             )
@@ -121,7 +123,7 @@ class Trainer(Base):
             data_collator=self.data_collator,
             formatting_func=formatting_func,
             peft_config=self.args.train.lora,
-            compute_metrics=compute_metrics,
+            # compute_metrics=compute_metrics,
             # preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         )
 
