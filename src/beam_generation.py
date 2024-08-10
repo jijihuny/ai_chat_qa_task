@@ -33,7 +33,7 @@ def get_beam_search_sequences(
     )
 
     results = []
-    for i in num_inputs:
+    for i in range(num_inputs):
         start = int(i * num_return_sequences)
         end = start + num_return_sequences
         results += [{"generated_texts": sequences[start:end], "scores": scores[i]}]
