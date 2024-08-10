@@ -42,7 +42,7 @@ class GenerationConfig:
     return_full_text: bool = HfArg(default=False)
 
     # parameters that define the output variables of generate
-    num_return_sequences: int | None = HfArg(None)
+    num_return_sequences: int | None = HfArg(default=None)
     output_scores: bool | None = HfArg(default=False)
     output_logits: bool | None = HfArg(default=None)
     return_dict_in_generate: bool | None = HfArg(default=False)
