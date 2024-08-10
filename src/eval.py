@@ -25,6 +25,12 @@ class Evaluator(Base):
         def batch(iterable: Dataset, size: int = 4):
             total_batches = (len(iterable) + size - 1) // size
             return tqdm(iterable.iter(size), total=total_batches, desc="evaluation..")
+        
+        generation_kwargs = None
+        if isinstance(self.args.generation, GenerationConfig):
+            generation_kwargs = self.args.generation.__dict__
+        else:
+            generation_kwargs = self.args.generation
 
         if (
             self.args.generation.num_beams
@@ -37,15 +43,10 @@ class Evaluator(Base):
             )
 
             for examples in batch(eval_sample, 4):
-                generated = get_sequences(inputs=examples["text"])
+                generated = get_sequences(inputs=examples["text"], **generation_kwargs)
                 predictions += generated
 
         else:
-            generation_kwargs = None
-            if isinstance(self.args.generation, GenerationConfig):
-                generation_kwargs = self.args.generation.__dict__
-            else:
-                generation_kwargs = self.args.generation
             for examples in batch(eval_sample, 4):
                 generated = self.generator(examples["text"], **generation_kwargs)
                 predictions += [gen[0]["generated_text"] for gen in generated]
