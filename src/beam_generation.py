@@ -14,7 +14,9 @@ def get_beam_search_sequences(
     if kwargs.get("return_dict_in_generate") != True:
         UserWarning("return_dict_in_generate set False")
         kwargs["return_dict_in_generate"] = True
-
+    if tokenizer.padding_side != 'left':
+        tokenizer.padding_side = 'left'
+        
     num_return_sequences = kwargs.get("num_return_sequences")
     if (not isinstance(num_return_sequences, int)) or num_return_sequences < 1:
         num_return_sequences = 1
