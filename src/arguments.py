@@ -72,7 +72,7 @@ class GenerationConfig:
 
     num_beams: int | None = HfArg(default=None)
     num_beam_groups: int | None = HfArg(default=None)
-    diversity_penelty: float | None = HfArg(default=None)
+    diversity_penalty: float | None = HfArg(default=None)
     length_penalty: float | None = HfArg(default=None)
 
 
