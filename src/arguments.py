@@ -43,9 +43,9 @@ class GenerationConfig:
 
     # parameters that define the output variables of generate
     num_return_sequences: int | None = HfArg(None)
-    output_scores: bool | None = HfArg(False)
-    output_logits: bool | None = HfArg(None)
-    return_dict_in_generate: bool | None = HfArg(False)
+    output_scores: bool | None = HfArg(default=False)
+    output_logits: bool | None = HfArg(default=None)
+    return_dict_in_generate: bool | None = HfArg(default=False)
 
     renormalize_logits: bool | None = HfArg(default=None)
 
