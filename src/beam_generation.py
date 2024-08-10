@@ -10,7 +10,7 @@ def get_beam_search_sequences(
     model: PreTrainedModel, tokenizer: PreTrainedTokenizer, inputs: list[str], **kwargs
 ) -> list[Dict[Literal["generated_texts", "scores"], Union[list[str], ndarray]]]:
     if kwargs.get("return_full_text"):
-        kwargs["return_full_text"] = None
+        kwargs.pop("return_full_text")
     if kwargs.get("return_dict_in_generate") != True:
         UserWarning("return_dict_in_generate set False")
         kwargs["return_dict_in_generate"] = True
