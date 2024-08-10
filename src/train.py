@@ -8,15 +8,14 @@ from transformers import (
 )
 from transformers.hf_argparser import HfArgumentParser
 from peft import get_peft_model, prepare_model_for_kbit_training, PeftModel
-from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
+from trl import DataCollatorForCompletionOnlyLM
 from torch import Tensor, LongTensor
 from torch.nn.functional import cross_entropy
 import numpy as np
 from typing import Self, Tuple
-from re import search
 from base import Base
 from arguments import Arguments, Config
-
+from scheduler import CosineScheduleTrainer
 
 class Trainer(Base):
     def __init__(self: Self, args: Config):
@@ -113,7 +112,7 @@ class Trainer(Base):
                 logits = logits[0]
             return logits.argmax(dim=-1)
 
-        self.trainer = SFTTrainer(
+        self.trainer = CosineScheduleTrainer(
             model=self.model,
             tokenizer=self.tokenizer,
             args=self.args.train.args,
