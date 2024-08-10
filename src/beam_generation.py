@@ -9,13 +9,13 @@ from arguments import GenerationConfig
 def get_beam_search_sequences(
     model: PreTrainedModel, tokenizer: PreTrainedTokenizer, inputs: list[str], **kwargs
 ) -> list[Dict[Literal["generated_texts", "scores"], Union[list[str], ndarray]]]:
-    if kwargs.get('return_full_text'):
-        kwargs.return_full_text = None
-    if kwargs.get('return_dict_in_generate') != True:
+    if kwargs.get("return_full_text"):
+        kwargs["return_full_text"] = None
+    if kwargs.get("return_dict_in_generate") != True:
         UserWarning("return_dict_in_generate set False")
-        kwargs['return_dict_in_generate'] = True
+        kwargs["return_dict_in_generate"] = True
 
-    num_return_sequences = kwargs.get('num_return_sequences')
+    num_return_sequences = kwargs.get("num_return_sequences")
     if (not isinstance(num_return_sequences, int)) or num_return_sequences < 1:
         num_return_sequences = 1
     num_inputs = len(inputs)

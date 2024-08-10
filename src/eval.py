@@ -25,19 +25,20 @@ class Evaluator(Base):
         def batch(iterable: Dataset, size: int = 4):
             total_batches = (len(iterable) + size - 1) // size
             return tqdm(iterable.iter(size), total=total_batches, desc="evaluation..")
-        
+
         generation_kwargs = None
         if isinstance(self.args.generation, GenerationConfig):
             generation_kwargs = self.args.generation.__dict__
         else:
             generation_kwargs = self.args.generation
 
+        beam_search = None
         if (
             self.args.generation.num_beams
             and isinstance(self.args.generation.num_return_sequences, int)
             and self.args.generation.num_return_sequences > 1
         ):
-
+            beam_search = True
             get_sequences = partial(
                 get_beam_search_sequences, model=self.model, tokenizer=self.tokenizer
             )
@@ -55,10 +56,12 @@ class Evaluator(Base):
             return {}, list(zip(eval_sample["id"], predictions))
         else:
             references = eval_sample["answer"]
+            if beam_search:
+                return {}, list(zip(eval_sample["id"], references, predictions))
+
             self.results = self.metric.compute(
                 predictions=predictions, references=references
             )
-
             return self.results, list(zip(eval_sample["id"], references, predictions))
 
 
@@ -86,7 +89,7 @@ def main():
 
     output_path = base / "eval" / str(args.name)
     output_path.mkdir(exist_ok=True, parents=True)
-    if config.metric.only_inference != True:
+    if config.metric.only_inference != True and results:
         with (output_path / "result.yaml").open("w") as output:
             yaml.dump(results, output)
     with (output_path / "config_yaml").open("w") as output:
