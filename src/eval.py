@@ -95,21 +95,20 @@ def main():
     with (output_path / "config_yaml").open("w") as output:
         yaml.dump(config_yaml, output)
 
-    if config.metric.only_inference:
-        columns = ["id", "answer"]
-    else:
-        columns = ["id", "pred", "label"]
-
     if (
         config.generation.num_beams
         and isinstance(config.generation.num_return_sequences, int)
         and config.generation.num_return_sequences > 1
     ):
-        with (output_path / "candidates").open("w") as output:
-            yaml.dum(frame, output)
+        columns = ["id", "candidates"]
+    elif config.metric.only_inference:
+        columns = ["id", "answer"]
     else:
-        df = pd.DataFrame(frame, columns=columns)
-        df.to_csv((output_path / "result.csv"), index=False)
+        columns = ["id", "pred", "label"]
+
+    
+    df = pd.DataFrame(frame, columns=columns)
+    df.to_csv((output_path / "result.csv"), index=False)
 
 
 if __name__ == "__main__":

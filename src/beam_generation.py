@@ -24,7 +24,7 @@ def get_beam_search_sequences(
     inputs = tokenizer(inputs, padding="longest", return_tensors="pt")
     length = inputs.input_ids.shape[-1]
     output: GenerateBeamDecoderOnlyOutput = model.generate(
-        **inputs.to(model.device), **kwargs
+        **inputs.to(model.device), **kwargs, eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.pad_token_id
     )
 
     sequences = tokenizer.batch_decode(output.sequences[:, length:])
