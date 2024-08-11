@@ -101,7 +101,7 @@ def main():
         and config.generation.num_return_sequences > 1
     ):
         with (output_path / "candidates.yaml").open('w') as output:
-            obj = [{'id': id, 'candidates': {'sequence': frame['sequence'], 'score': frame['score']}} for id, candidates in frame]        
+            obj = [{'id': id, 'candidates': candidates} for id, candidates in frame]        
             yaml.dump(obj, output, allow_unicode=True)
             return
     elif config.metric.only_inference:
