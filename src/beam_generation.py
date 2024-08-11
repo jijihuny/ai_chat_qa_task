@@ -3,7 +3,7 @@ from transformers.generation import GenerateBeamDecoderOnlyOutput
 from torch.nn.functional import softmax
 from typing import Union, Dict, Literal
 from numpy import ndarray
-from arguments import GenerationConfig
+from torch import cuda
 
 
 def get_beam_search_sequences(
@@ -14,9 +14,9 @@ def get_beam_search_sequences(
     if kwargs.get("return_dict_in_generate") != True:
         UserWarning("return_dict_in_generate set False")
         kwargs["return_dict_in_generate"] = True
-    if tokenizer.padding_side != 'left':
-        tokenizer.padding_side = 'left'
-        
+    if tokenizer.padding_side != "left":
+        tokenizer.padding_side = "left"
+
     num_return_sequences = kwargs.get("num_return_sequences")
     if (not isinstance(num_return_sequences, int)) or num_return_sequences < 1:
         num_return_sequences = 1
@@ -39,5 +39,8 @@ def get_beam_search_sequences(
         start = int(i * num_return_sequences)
         end = start + num_return_sequences
         results += [{"generated_texts": sequences[start:end], "scores": scores[i]}]
+
+    if cuda.is_available():
+        cuda.empty_cache()
 
     return results
