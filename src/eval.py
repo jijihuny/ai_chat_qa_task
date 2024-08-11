@@ -100,7 +100,10 @@ def main():
         and isinstance(config.generation.num_return_sequences, int)
         and config.generation.num_return_sequences > 1
     ):
-        columns = ["id", "candidates"]
+        with (output_path / "candidates.yaml").open('w') as output:
+            obj = [{'id': id, 'candidates': {'sequence': frame['sequence'], 'score': frame['score']}} for id, candidates in frame]        
+            yaml.dump(obj, output, allow_unicode=True)
+            return
     elif config.metric.only_inference:
         columns = ["id", "answer"]
     else:

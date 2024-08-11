@@ -27,7 +27,7 @@ def get_beam_search_sequences(
         **inputs.to(model.device), **kwargs, eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.pad_token_id
     )
 
-    sequences = tokenizer.batch_decode(output.sequences[:, length:])
+    sequences = tokenizer.batch_decode(output.sequences[:, length:], skip_special_tokens=False)
     scores = (
         softmax(output.sequences_scores.view(-1, num_return_sequences), dim=-1)
         .cpu()
