@@ -43,12 +43,12 @@ class Evaluator(Base):
                 get_beam_search_sequences, model=self.model, tokenizer=self.tokenizer
             )
 
-            for examples in batch(eval_sample, 4):
+            for examples in batch(eval_sample, self.args.train.args.per_device_eval_batch_size):
                 generated = get_sequences(inputs=examples["text"], **generation_kwargs)
                 predictions += generated
 
         else:
-            for examples in batch(eval_sample, 4):
+            for examples in batch(eval_sample, self.args.train.args.per_device_eval_batch_size):
                 generated = self.generator(examples["text"], **generation_kwargs)
                 predictions += [gen[0]["generated_text"] for gen in generated]
 
@@ -101,7 +101,7 @@ def main():
         and config.generation.num_return_sequences > 1
     ):
         with (output_path / "candidates.yaml").open('w') as output:
-            obj = [{'id': id, 'candidates': {'generated_text': candidates['generated_text'], 'scores': candidates['scores'].tolist()}} for id, candidates in frame]        
+            obj = [{'id': id, 'candidates': {'generated_texts': candidates['generated_texts'], 'scores': candidates['scores'].tolist()}} for id, candidates in frame]        
             yaml.dump(obj, output, allow_unicode=True)
             return
     elif config.metric.only_inference:
