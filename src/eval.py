@@ -92,8 +92,8 @@ def main():
     if config.metric.only_inference != True and results:
         with (output_path / "result.yaml").open("w") as output:
             yaml.dump(results, output)
-    with (output_path / "config_yaml").open("w") as output:
-        yaml.dump(config_yaml, output)
+    with (output_path / "config.yaml").open("w") as output:
+        yaml.dump(config_yaml, output, allow_unicode=True)
 
     if (
         config.generation.num_beams

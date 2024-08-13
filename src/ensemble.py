@@ -77,12 +77,12 @@ class TextsAndScores:
 count = 0
 
 class Candidates:
-    def __init__(self: Self, candidates: dict | TextsAndScores | None):
+    def __init__(self: Self, candidates: dict | TextsAndScores | None, weight: float | None):
         self.__table__ = {key: None for key in string.punctuation}
         self.__candidates__ = {}
 
         if candidates:
-            self.add_candidates(candidates=candidates)
+            self.add_candidates(candidates=candidates, weight=weight)
     
     def __getitem__(self: Self, key: str):
         if not (key in self):
@@ -92,15 +92,18 @@ class Candidates:
     def __contains__(self: Self, key: str):
         return key.translate(self.__table__) in self.__candidates__.keys()
 
-    def add_candidates(self: Self, candidates: dict | TextsAndScores):
+    def add_candidates(self: Self, candidates: dict | TextsAndScores, weight: float | None):
         if not isinstance(candidates, TextsAndScores):
             candidates = TextsAndScores(**candidates)
+        if not isinstance(weight, float):
+            weight = 1.0
+        
         for text, score in zip(candidates.generated_texts, candidates.scores):
             text = text.translate(self.__table__)
             if text in self.__candidates__.keys():
-                self.__candidates__[text] += score
+                self.__candidates__[text] += score * float(weight)
             else:
-                self.__candidates__[text] = score
+                self.__candidates__[text] = score * float(weight)
 
     def get_best_candidate(self: Self)->str:
         return max(self.__candidates__, key=self.__candidates__.get)
@@ -124,25 +127,25 @@ class Ensembler:
         self.config = config.ensemble
         self.base = base
         self.models = []
-        for model in self.config.models:
-            self.models += [self.base / "eval" / model]
-
         self.candidates: dict[str, Candidates] = {}
+
+        for model in self.config.models:
+            self.models += [[self.base / "eval" / model['name'], model.get('weight')]]
 
         for model in self.models:
             self.__load_yaml(model)
 
-    def __load_yaml(self: Self, path: str | Path):
+    def __load_yaml(self: Self, model: list[tuple[str | Path, float]]):
         if not hasattr(self, 'candidates'):
             self.candidates = {}
-        print(path / "candidates.yaml")
+        path, weight = model
         with (path / "candidates.yaml").open('r') as input:
             table = yaml.load(input, yaml.FullLoader)
             for row in table:
                 if not row['id'] in self.candidates.keys():
-                    self.candidates[row['id']] = Candidates(row['candidates'])
+                    self.candidates[row['id']] = Candidates(row['candidates'], weight=weight)
                 else:
-                    self.candidates[row['id']].add_candidates(row['candidates'])
+                    self.candidates[row['id']].add_candidates(row['candidates'], weight=weight)
 
     def get_best_candidates(self: Self):
         self.results = {}
@@ -168,7 +171,7 @@ def main():
     results = ensembler()
     print(count)
     df = pd.DataFrame(results.items(), columns=['id', 'answer'])
-    name = "-".join(["ensemble", *config.ensemble.models]) + ".csv"
+    name = "-".join(["ensemble", *(model['name'] for model in config.ensemble.models)]) + ".csv"
     df.to_csv(name, index=False)
 
 if __name__=='__main__':
