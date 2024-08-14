@@ -8,7 +8,7 @@ model:
   revision: 359a3e90be96b325dedcba14b60f06f05b595978
 dataset:
   path: test.csv
-  name: train
+  name: test
   shuffle: false
   test_size: null
   include_answer: false
