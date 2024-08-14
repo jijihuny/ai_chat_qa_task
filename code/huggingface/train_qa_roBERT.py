@@ -22,7 +22,7 @@ from peft import (
 from datasets import load_dataset
 from accelerate import Accelerator
 
-repo = 'uomnf97/klue-roberta-finetuned-korquad-v2' # CurtisJeon/klue-roberta-large-korquad_v1_qa
+repo = 'uomnf97/klue-roberta-finetuned-korquad-v2' #"CurtisJeon/klue-roberta-large-korquad_v1_qa"
 tokenizer = AutoTokenizer.from_pretrained(repo)
 dataset = load_dataset("csv", data_files="/home/jovyan/work/prj_data/open/train.csv")
 max_length = 512
@@ -116,7 +116,7 @@ model = AutoModelForQuestionAnswering.from_pretrained(
         repo,
         device_map="cuda:0",
         torch_dtype=torch.float32,
-        quantization_config=quantization_config,
+        # quantization_config=quantization_config,
 )
 print("Model Set Completed.")
 model.resize_token_embeddings(len(tokenizer))
@@ -130,8 +130,8 @@ lora_config = LoraConfig(
     task_type="QUESTION_ANSWERING"
 )
 
-model = prepare_model_for_kbit_training(model)
-model = get_peft_model(model, lora_config)
+# model = prepare_model_for_kbit_training(model)
+# model = get_peft_model(model, lora_config)
 
 accelerater = Accelerator()
 model, tokenizer = accelerater.prepare(model, tokenizer)
