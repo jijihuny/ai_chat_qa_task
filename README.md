@@ -44,6 +44,7 @@ conda create -n [env_name] python=3.11
 conda activate [env_name]
 git clone https://github.com/jijihuny/ai_chat_qa_task
 cd ai_chat_qa_task
+pip install -e .
 bash entrypoint.sh [train | inference] # train과 inference 모드 중 선택할 수 있습니다.
 ```
 
