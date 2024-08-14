@@ -9,9 +9,9 @@ model:
   peft_revision: c36a096be6cc83317f8484247dc3bf2e6bacb3cc
 dataset:
   path: test.csv
-  # name: test
+  name: test
   shuffle: false
-  test_size: 1.0
+  test_size: null
   include_answer: false
 generation:
   max_new_tokens: 50

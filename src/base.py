@@ -61,7 +61,7 @@ class Base:
 
     def prepare_data(self: Self) -> Dataset:
         if self.args.dataset.path.endswith(".csv"):
-            self.dataset = load_dataset("csv", data_files=[self.args.dataset.path])
+            self.dataset = load_dataset("csv", data_files={self.args.dataset.name: self.args.dataset.path})
         else:
             self.dataset = load_dataset(self.args.dataset.path, self.args.dataset.name)
 

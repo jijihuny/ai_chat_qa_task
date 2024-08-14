@@ -8,9 +8,9 @@ model:
   revision: ece1eea3e0f1653eebac5016bdae1fbd37894078
 dataset:
   path: test.csv
-  # name: test
+  name: test
   shuffle: false
-  test_size: 1.0
+  test_size: null
   include_answer: false
 generation:
   max_new_tokens: 50

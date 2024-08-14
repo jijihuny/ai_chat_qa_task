@@ -8,9 +8,9 @@ model:
   revision: 359a3e90be96b325dedcba14b60f06f05b595978
 dataset:
   path: test.csv
-  # name: train
+  name: train
   shuffle: false
-  test_size: 1.0
+  test_size: null
   include_answer: false
 generation:
   max_new_tokens: 50
