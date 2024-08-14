@@ -35,7 +35,7 @@ class DatasetConfig:
 @dataclass
 class MetricConfig:
     path: str | None = HfArg(default=None)
-    only_inference: bool | None = HfArg(default=None)
+    per_device_inference_batch_size: int = HfArg(default=2)
 
 
 @dataclass

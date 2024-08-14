@@ -44,14 +44,14 @@ class Evaluator(Base):
             )
 
             for examples in batch(
-                eval_sample, self.args.train.args.per_device_eval_batch_size
+                eval_sample, self.args.metric.per_device_inference_batch_size
             ):
                 generated = get_sequences(inputs=examples["text"], **generation_kwargs)
                 predictions += generated
 
         else:
             for examples in batch(
-                eval_sample, self.args.train.args.per_device_eval_batch_size
+                eval_sample, self.args.metric.per_device_inference_batch_size
             ):
                 generated = self.generator(examples["text"], **generation_kwargs)
                 predictions += [gen[0]["generated_text"] for gen in generated]
