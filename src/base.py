@@ -25,12 +25,14 @@ class Base:
     """
 
     def __init__(self: Self, args: Config):
-        if args.seed is not None:
-            self.seed = args.seed
+        self.args = args
+
+    def init_seed(self: Self):
+        if self.args.seed is not None:
+            self.seed = self.args.seed
         else:
             self.seed = 0
         set_seed(self.seed)
-        self.args = args
 
     def prepare_model(self: Self) -> Tuple[PreTrainedModel, PreTrainedTokenizer]:
         self.model: PreTrainedModel = AutoModelForCausalLM.from_pretrained(
@@ -67,7 +69,9 @@ class Base:
                 not train.endswith(".csv") and not test.endswith(".csv")
             ), ValueError(f"see {train, test} format")
 
-            self.dataset = load_dataset("csv", data_files=self.args.dataset.data_files)
+            self.dataset = load_dataset(
+                "csv", data_files=self.args.dataset.data_files, num_proc=1
+            )
         elif self.args.dataset.path.endswith(".csv"):
             self.dataset = load_dataset(
                 "csv", data_files={self.args.dataset.name: self.args.dataset.path}

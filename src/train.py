@@ -121,6 +121,8 @@ class Trainer(Base):
                     logits = logits[0]
                 return logits.argmax(dim=-1)
 
+        self.init_seed()
+
         self.trainer = CosineScheduleTrainer(
             model=self.model,
             tokenizer=self.tokenizer,

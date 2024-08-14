@@ -2,7 +2,7 @@
 
 export python_version=3.11
 
-if [ "$1" != "train" ] || [ "$1" != "inference" ]; then
+if [ "$1" != "train" ] && [ "$1" != "inference" ]; then
     echo "arg must be one of ['train', 'inference']"
     exit 1
 elif [ "$1" == "train" ]; then

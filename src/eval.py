@@ -32,6 +32,8 @@ class Evaluator(Base):
         else:
             generation_kwargs = self.args.generation
 
+        self.init_seed()
+
         beam_search = None
         if (
             self.args.generation.num_beams
