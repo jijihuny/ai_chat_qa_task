@@ -1,0 +1,9 @@
+**
+!model/**
+!src/**
+!Dockerfile
+!example.yaml
+!inference.sh
+!train.sh
+!*.md
+!.*
