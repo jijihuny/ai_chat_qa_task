@@ -1,0 +1,7 @@
+ensemble:
+  models:
+    - name: cos-decay
+    - name: cos-default
+    - name: cos-restart
+    - name: linear
+    - name: best

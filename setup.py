@@ -15,8 +15,5 @@ setup(
         "peft",
         "bitsandbytes",
         "wandb",
-    ],
-    entry_points={
-        "console_scripts": ["chatqa-eval=src.eval:main", "chatqa-train=src.train:main"]
-    },
+    ]
 )

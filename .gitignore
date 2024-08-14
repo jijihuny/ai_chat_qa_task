@@ -7,9 +7,13 @@
 !src/**
 !src/**/*
 
+!ensemble/
+!ensemble/**
+!ensemble/**/*
+
 !Dockerfile
-!example.yaml
+!**/example.yaml
 !entrypoint.sh
-!*.md
-!.gitignore
+!**/*.md
+!**/.gitignore
 !setup.py

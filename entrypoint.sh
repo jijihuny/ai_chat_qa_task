@@ -15,5 +15,10 @@ fi
 
 for name in best cos-dec cos-default cos-restart ft-linear
 do
-    python$py_ver ./src/$python_file.py -c model/$name/$yaml_file.yaml -n $name
+    python$python_version ./src/$python_file.py -c model/$name/$yaml_file.yaml -n $name
+done
+
+if [ "$python_file" == "inference" ]; then
+do
+    python$python_version ./src/ensemble.py -c ensemble/ensemble.yaml
 done
