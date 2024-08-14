@@ -56,7 +56,7 @@ class Evaluator(Base):
                 generated = self.generator(examples["text"], **generation_kwargs)
                 predictions += [gen[0]["generated_text"] for gen in generated]
 
-        if self.args.metric.only_inference:
+        if self.metric == None:
             return {}, list(zip(eval_sample["id"], predictions))
         else:
             references = eval_sample["answer"]
@@ -71,7 +71,6 @@ class Evaluator(Base):
 
 import yaml
 import os
-from os.path import join
 from pathlib import Path
 
 

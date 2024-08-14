@@ -60,6 +60,8 @@ class Base:
         return self.generator
 
     def prepare_data(self: Self) -> Dataset:
+        if self.args.dataset.path.endswith(".csv"):
+            self.dataset = load_dataset("csv", data_files=[self.args.dataset.path])
         self.dataset = load_dataset(self.args.dataset.path, self.args.dataset.name)
 
         if self.args.dataset.test_size:
@@ -74,7 +76,10 @@ class Base:
         return self.dataset
 
     def prepare_metric(self: Self) -> Metric:
-        self.metric = load(path=self.args.metric.path)
+        if self.args.metric.path:
+            self.metric = load(path=self.args.metric.path)
+        else:
+            self.metric = None
         return self.metric
 
     def _chat_prompt_format_func(self: Self) -> Callable[[Example], str]:
