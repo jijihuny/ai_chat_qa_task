@@ -104,10 +104,12 @@ class TrainConfig:
         )
         self.args = SFTConfig(**self.args) if isinstance(self.args, dict) else self.args
 
+
 @dataclass
 class EnsembleConfig:
-    models: list[str] = HfArg(default_factory=lambda : [])
+    models: list[str] = HfArg(default_factory=lambda: [])
     weighted_voting: bool | None = HfArg(default=True)
+
 
 @dataclass
 class Config:
@@ -146,5 +148,7 @@ class Config:
             TrainConfig(**self.train) if isinstance(self.train, dict) else self.train
         )
         self.ensemble = (
-            EnsembleConfig(**self.ensemble) if isinstance(self.ensemble, dict) else self.ensemble
+            EnsembleConfig(**self.ensemble)
+            if isinstance(self.ensemble, dict)
+            else self.ensemble
         )

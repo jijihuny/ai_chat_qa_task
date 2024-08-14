@@ -1,7 +1,7 @@
 from transformers.hf_argparser import HfArgumentParser
 from datasets import Dataset
 from tqdm import tqdm
-from typing import Self, Dict, Iterable
+from typing import Self, Dict
 import pandas as pd
 from functools import partial
 from base import Base
@@ -43,12 +43,16 @@ class Evaluator(Base):
                 get_beam_search_sequences, model=self.model, tokenizer=self.tokenizer
             )
 
-            for examples in batch(eval_sample, self.args.train.args.per_device_eval_batch_size):
+            for examples in batch(
+                eval_sample, self.args.train.args.per_device_eval_batch_size
+            ):
                 generated = get_sequences(inputs=examples["text"], **generation_kwargs)
                 predictions += generated
 
         else:
-            for examples in batch(eval_sample, self.args.train.args.per_device_eval_batch_size):
+            for examples in batch(
+                eval_sample, self.args.train.args.per_device_eval_batch_size
+            ):
                 generated = self.generator(examples["text"], **generation_kwargs)
                 predictions += [gen[0]["generated_text"] for gen in generated]
 
@@ -100,8 +104,17 @@ def main():
         and isinstance(config.generation.num_return_sequences, int)
         and config.generation.num_return_sequences > 1
     ):
-        with (output_path / "candidates.yaml").open('w') as output:
-            obj = [{'id': id, 'candidates': {'generated_texts': candidates['generated_texts'], 'scores': candidates['scores'].tolist()}} for id, candidates in frame]        
+        with (output_path / "candidates.yaml").open("w") as output:
+            obj = [
+                {
+                    "id": id,
+                    "candidates": {
+                        "generated_texts": candidates["generated_texts"],
+                        "scores": candidates["scores"].tolist(),
+                    },
+                }
+                for id, candidates in frame
+            ]
             yaml.dump(obj, output, allow_unicode=True)
             return
     elif config.metric.only_inference:
@@ -109,7 +122,6 @@ def main():
     else:
         columns = ["id", "pred", "label"]
 
-    
     df = pd.DataFrame(frame, columns=columns)
     df.to_csv((output_path / "result.csv"), index=False)
 

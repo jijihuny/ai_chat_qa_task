@@ -1,3 +1,4 @@
+from transformers import SchedulerType
 from torch.optim.lr_scheduler import LambdaLR
 from torch.optim import Optimizer
 from trl import SFTTrainer
@@ -27,7 +28,7 @@ def _get_cosine_with_hard_restarts_and_decreasing_schedule_with_warmup_lr_lambda
     return max(0.0, 0.5 * (1.0 + math.cos(math.pi * cycle))) * decay
 
 
-def get_cosine_with_hard_restarts__and_decreasing_schedule_with_warmup(
+def get_cosine_with_hard_restarts_and_decreasing_schedule_with_warmup(
     optimizer: Optimizer,
     num_warmup_steps: int,
     num_training_steps: int,
@@ -50,10 +51,17 @@ class CosineScheduleTrainer(SFTTrainer):
         super().__init__(*args, **kwargs)
 
     @overrides
-    def create_scheduler(self, num_training_steps: int, optimizer: Optimizer = None):
+    def create_scheduler(
+        self: Self, num_training_steps: int, optimizer: Optimizer = None
+    ):
+        if self.args.lr_scheduler_type != SchedulerType.COSINE_WITH_RESTARTS:
+            return super().create_scheduler(
+                num_training_steps=num_training_steps, optimizer=optimizer
+            )
+
         if self.lr_scheduler is None:
             self.lr_scheduler = (
-                get_cosine_with_hard_restarts__and_decreasing_schedule_with_warmup(
+                get_cosine_with_hard_restarts_and_decreasing_schedule_with_warmup(
                     optimizer=self.optimizer if optimizer is None else optimizer,
                     num_warmup_steps=self.args.get_warmup_steps(num_training_steps),
                     num_training_steps=num_training_steps,

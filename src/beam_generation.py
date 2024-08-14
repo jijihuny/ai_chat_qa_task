@@ -9,6 +9,17 @@ from torch import cuda
 def get_beam_search_sequences(
     model: PreTrainedModel, tokenizer: PreTrainedTokenizer, inputs: list[str], **kwargs
 ) -> list[Dict[Literal["generated_texts", "scores"], Union[list[str], ndarray]]]:
+    r"""
+
+    ```python
+    from functools import partial
+
+    generate = partial(get_beam_search_sequences, model=model, tokenizer=tokenizer)
+
+    output = generate(inputs=inputs)
+    ```
+
+    """
     # only pipeline arg
     kwargs.pop("return_full_text")
     if kwargs.get("return_dict_in_generate") != True:
@@ -24,10 +35,15 @@ def get_beam_search_sequences(
     inputs = tokenizer(inputs, padding="longest", return_tensors="pt")
     length = inputs.input_ids.shape[-1]
     output: GenerateBeamDecoderOnlyOutput = model.generate(
-        **inputs.to(model.device), **kwargs, eos_token_id=tokenizer.eos_token_id, pad_token_id=tokenizer.pad_token_id
+        **inputs.to(model.device),
+        **kwargs,
+        eos_token_id=tokenizer.eos_token_id,
+        pad_token_id=tokenizer.pad_token_id
     )
 
-    sequences = tokenizer.batch_decode(output.sequences[:, length:], skip_special_tokens=True)
+    sequences = tokenizer.batch_decode(
+        output.sequences[:, length:], skip_special_tokens=True
+    )
     scores = (
         softmax(output.sequences_scores.view(-1, num_return_sequences), dim=-1)
         .cpu()

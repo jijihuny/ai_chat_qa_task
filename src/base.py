@@ -9,7 +9,7 @@ from transformers import (
 )
 from datasets import load_dataset, Dataset
 from evaluate import load, Metric
-from typing import Self, Tuple, Callable, Dict, Literal, Union, TypedDict
+from typing import Self, Tuple, Callable, TypedDict
 from arguments import Config
 
 
@@ -20,6 +20,10 @@ class Example(TypedDict):
 
 
 class Base:
+    r"""
+    base class for inference and training
+    """
+
     def __init__(self: Self, args: Config):
         if args.seed is not None:
             self.seed = args.seed
