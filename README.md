@@ -52,6 +52,8 @@ docker
 
 도커를 이용해 모델을 구동할 수 있습니다.
 ```bash
+git clone https://github.com/jijihuny/ai_chat_qa_task
+cd ai_chat_qa_task
 docker build . -t [docker_image_name]
 docker run -it --rm --name [docker_container_name] -v ./:/workspace [docker_image_name] bash entrypoint.sh [train | inference]
 ```
