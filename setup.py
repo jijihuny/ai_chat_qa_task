@@ -8,7 +8,7 @@ setup(
     install_requires=[
         "overrides",
         "transformers",
-        "datasets",
+        "datasets==2.20.0",
         "evaluate",
         "accelerate",
         "trl",
