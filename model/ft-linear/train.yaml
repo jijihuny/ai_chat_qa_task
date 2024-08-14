@@ -1,0 +1,69 @@
+model:
+  task: text-generation
+  system_prompt: "너는 주어진 Context에서 Question에 대한 Answer를 찾는 챗봇이야. Context에서 Answer가 될 수 있는 부분을 찾아서 그대로 적어줘. 단, Answer는 주관식이 아니라 단답형으로 적어야 해."
+  path: MLP-KTLim/llama-3-Korean-Bllossom-8B
+  torch_dtype: auto
+  device_map: auto
+  attn_implementation: sdpa
+  revision: 359a3e90be96b325dedcba14b60f06f05b595978
+  peft_revision: c36a096be6cc83317f8484247dc3bf2e6bacb3cc
+dataset:
+  path: jijihuny/economics_qa_eval
+  name: test
+  shuffle: false
+  test_size: null
+  include_answer: false
+train:
+  instruction_template: "<|start_header_id|>user<|end_header_id|>\n\n"
+  response_template: "<|start_header_id|>assistant<|end_header_id|>\n\n"
+  use_completion_only_data_collator: false
+  quantization:
+    load_in_4bit: true
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_compute_dtype: bfloat16
+    bnb_4bit_use_double_quant: true
+  lora:
+    r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
+    bias: none
+    target_modules:
+      - up_proj
+      - down_proj
+      - gate_proj
+      - k_proj
+      - q_proj
+      - v_proj
+      - o_proj
+      # - lm_head
+    task_type: CAUSAL_LM
+  args:
+    output_dir: llama3-qlora-r16-a32
+    run_name: llama3-qlora-r16-a32
+    # report_to: wandb
+    # dataloader_num_workers: 4
+    # torch_empty_cache_steps: 3
+
+    max_seq_length: 2048
+    eval_strategy: steps
+    per_device_train_batch_size: 1
+    per_device_eval_batch_size: 2
+    gradient_accumulation_steps: 16
+    eval_accumulation_steps: 1
+
+    optim: paged_adamw_8bit
+    bf16: true
+    bf16_full_eval: true
+    learning_rate: 2.0e-4
+    weight_decay: 0.01
+    num_train_epochs: 1
+    warmup_ratio: 0.003
+    max_grad_norm: 2.0
+    
+    eval_steps: 0.2
+    eval_on_start: true
+    save_steps: 0.2
+    logging_steps: 1
+    
+    torch_compile: true
+seed: 42

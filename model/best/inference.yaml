@@ -1,0 +1,27 @@
+model:
+  task: text-generation
+  system_prompt: "너는 주어진 Context에서 Question에 대한 Answer를 찾는 챗봇이야. Answer를 간결하게 문장이 아니라 정확한 짧은 표현으로 말해줘."
+  path: jijihuny/llama3-qlora-best
+  torch_dtype: auto
+  device_map: auto
+  attn_implementation: sdpa
+  revision: 359a3e90be96b325dedcba14b60f06f05b595978
+dataset:
+  path: jijihuny/economics_qa
+  # name: train
+  shuffle: false
+  test_size: null
+  include_answer: false
+generation:
+  max_new_tokens: 50
+  diversity_penalty: 1.5
+  do_sample: false
+  length_penalty: 1.2
+  num_beam_groups: 3
+  num_beams: 3
+  num_return_sequences: 3
+  output_scores: true
+  renormalize_logits: true
+  return_dict_in_generate: true
+  return_full_text: false
+seed: 42

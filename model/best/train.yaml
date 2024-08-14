@@ -1,0 +1,74 @@
+model:
+  task: text-generation
+  system_prompt: "너는 주어진 Context에서 Question에 대한 Answer를 찾는 챗봇이야. Answer를 간결하게 문장이 아니라 정확한 1~2단어로 말해줘."
+  path: MLP-KTLim/llama-3-Korean-Bllossom-8B
+  torch_dtype: auto
+  device_map: auto
+  attn_implementation: sdpa
+  revision: 359a3e90be96b325dedcba14b60f06f05b595978
+dataset:
+  path: jijihuny/economics_qa
+  name: train
+  shuffle: true
+  test_size: null
+  include_answer: true  
+train:
+  instruction_template: "<|start_header_id|>user<|end_header_id|>\n\n"
+  response_template: "<|start_header_id|>assistant<|end_header_id|>\n\n"
+  use_completion_only_data_collator: true
+  quantization:
+    load_in_4bit: true
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_compute_dtype: bfloat16
+    bnb_4bit_use_double_quant: true
+  lora:
+    r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
+    bias: none
+    target_modules:
+      - up_proj
+      - down_proj
+      - gate_proj
+      - k_proj
+      - q_proj
+      - v_proj
+      - o_proj
+      # - lm_head
+    task_type: CAUSAL_LM
+  args:
+    output_dir: model/best
+    run_name: llama3-qlora-gradacc2
+    # report_to: wandb
+    # dataloader_num_workers: 8
+    # torch_empty_cache_steps: 5
+
+    max_seq_length: 2048
+    eval_strategy: steps
+    per_device_train_batch_size: 1
+    per_device_eval_batch_size: 1
+    gradient_accumulation_steps: 2
+    eval_accumulation_steps: 1
+
+    # optim: paged_adamw_8bit
+    # lr_scheduler_type: cosine_with_restarts
+    # lr_scheduler_kwargs:
+    #   num_cycles: 5
+    #   gamma: 0.75
+    bf16: true
+    bf16_full_eval: true
+    learning_rate: 0.00002
+    weight_decay: 0.01
+    num_train_epochs: 1
+    warmup_ratio: 0.1
+    max_grad_norm: 1.0
+    
+    eval_steps: 0.05
+    eval_on_start: false
+    save_steps: 0.3
+    logging_steps: 1
+    
+    # push_to_hub: true
+
+    torch_compile: true
+seed: 42

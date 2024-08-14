@@ -1,0 +1,27 @@
+model:
+  task: text-generation
+  system_prompt: "너는 주어진 Context에서 Question에 대한 Answer를 찾는 챗봇이야. Context에서 Answer가 될 수 있는 부분을 찾아서 그대로 적어줘. 단, Answer는 주관식이 아니라 단답형으로 적어야 해."
+  path: jijihuny/llama3-qlora-cos-decay
+  torch_dtype: auto
+  device_map: auto
+  attn_implementation: sdpa
+  revision: ece1eea3e0f1653eebac5016bdae1fbd37894078
+dataset:
+  path: jijihuny/economics_qa_eval
+  name: test
+  shuffle: false
+  test_size: null
+  include_answer: false
+generation:
+  max_new_tokens: 50
+  diversity_penalty: 1.2
+  do_sample: false
+  length_penalty: 1.2
+  num_beam_groups: 3
+  num_beams: 3
+  num_return_sequences: 3
+  output_scores: true
+  renormalize_logits: true
+  return_dict_in_generate: true
+  return_full_text: false
+seed: 42
