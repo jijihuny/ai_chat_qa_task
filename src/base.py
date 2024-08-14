@@ -41,7 +41,7 @@ class Base:
             revision=self.args.model.revision,
             adapter_kwargs={"revision": self.args.model.peft_revision},
         )
-        self.tokenizer: PreTrainedModel = AutoTokenizer.from_pretrained(
+        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(
             self.args.model.path, device_map=self.args.model.device_map
         )
 
@@ -62,7 +62,8 @@ class Base:
     def prepare_data(self: Self) -> Dataset:
         if self.args.dataset.path.endswith(".csv"):
             self.dataset = load_dataset("csv", data_files=[self.args.dataset.path])
-        self.dataset = load_dataset(self.args.dataset.path, self.args.dataset.name)
+        else:
+            self.dataset = load_dataset(self.args.dataset.path, self.args.dataset.name)
 
         if self.args.dataset.test_size:
             self.dataset = self.dataset["train"].train_test_split(

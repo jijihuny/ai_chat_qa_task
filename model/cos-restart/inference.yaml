@@ -7,10 +7,10 @@ model:
   attn_implementation: sdpa
   revision: ece1eea3e0f1653eebac5016bdae1fbd37894078
 dataset:
-  path: jijihuny/economics_qa_eval
-  name: test
+  path: test.csv
+  # name: test
   shuffle: false
-  test_size: null
+  test_size: 1.0
   include_answer: false
 generation:
   max_new_tokens: 50

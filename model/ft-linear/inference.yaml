@@ -8,10 +8,10 @@ model:
   revision: 359a3e90be96b325dedcba14b60f06f05b595978
   peft_revision: c36a096be6cc83317f8484247dc3bf2e6bacb3cc
 dataset:
-  path: jijihuny/economics_qa_eval
-  name: test
+  path: test.csv
+  # name: test
   shuffle: false
-  test_size: null
+  test_size: 1.0
   include_answer: false
 generation:
   max_new_tokens: 50

@@ -1,9 +1,15 @@
-**
+**/*
+!model/
 !model/**
+!model/**/*
+
+!src/
 !src/**
+!src/**/*
+
 !Dockerfile
 !example.yaml
 !entrypoint.sh
 !*.md
-!.*
+!.gitignore
 !setup.py
