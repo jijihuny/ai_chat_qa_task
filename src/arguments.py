@@ -1,8 +1,10 @@
+from curses import noecho
 from transformers.hf_argparser import HfArg, HfArgumentParser
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig
 from trl import SFTConfig
 from dataclasses import dataclass
+from typing import TypedDict
 
 
 @dataclass
@@ -23,10 +25,16 @@ class ModelConfig:
     peft_revision: str | None = HfArg(default=None)
 
 
+class DataFiles(TypedDict):
+    train: str
+    test: str
+
+
 @dataclass
 class DatasetConfig:
     path: str | None = HfArg(default=None)
     name: str | None = HfArg(default=None)
+    data_files: DataFiles | None = HfArg(default=None)
     shuffle: bool = HfArg(default=True)
     test_size: float | None = HfArg(default=0.9)
     include_answer: bool | None = HfArg(default=False)

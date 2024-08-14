@@ -60,8 +60,18 @@ class Base:
         return self.generator
 
     def prepare_data(self: Self) -> Dataset:
-        if self.args.dataset.path.endswith(".csv"):
-            self.dataset = load_dataset("csv", data_files={self.args.dataset.name: self.args.dataset.path})
+        if self.args.dataset.data_files != None:
+            train = str(self.args.dataset.data_files.get("train"))
+            test = str(self.args.dataset.data_files.get("test"))
+            assert (train.endswith(".csv") and test.endswith(".csv")) or (
+                not train.endswith(".csv") and not test.endswith(".csv")
+            ), ValueError(f"see {train, test} format")
+
+            self.dataset = load_dataset("csv", data_files=self.args.dataset.data_files)
+        elif self.args.dataset.path.endswith(".csv"):
+            self.dataset = load_dataset(
+                "csv", data_files={self.args.dataset.name: self.args.dataset.path}
+            )
         else:
             self.dataset = load_dataset(self.args.dataset.path, self.args.dataset.name)
 
