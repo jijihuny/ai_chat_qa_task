@@ -7,8 +7,9 @@ model:
   attn_implementation: sdpa
   revision: ece1eea3e0f1653eebac5016bdae1fbd37894078
 dataset:
-  path: jijihuny/economics_qa_eval
-  name: test
+  data_files:
+    train: train.py
+    test: eval.py
   shuffle: true
   test_size: null
   include_answer: true
