@@ -80,7 +80,7 @@ def main():
 
     cwd = os.getcwd()
     base = Path(cwd)
-    config_path = base / "config.yaml"
+    config_path = base / args.config
     config_yaml = None
     with config_path.open("r") as input:
         config_yaml = yaml.load(input, Loader=yaml.FullLoader)

@@ -6,7 +6,7 @@ import yaml
 import re
 import string
 from collections import Counter
-from arguments import Config
+from arguments import Arguments, Config
 
 
 def normalize_answer(s):
@@ -79,9 +79,6 @@ class TextsAndScores:
         assert abs(sum(self.scores) - 1.0) < 1e-5  # softmax
 
 
-count = 0
-
-
 class Candidates:
     def __init__(
         self: Self, candidates: dict | TextsAndScores | None, weight: float | None
@@ -121,7 +118,6 @@ class Candidates:
     def get_best_candidate_using_similarity(self: Self) -> str:
         table = {}
         # O(n^2)
-        global count
         for current_word, current_score in self.__candidates__.items():
             score = float(current_score)
             for target_word, target_score in self.__candidates__.items():
@@ -180,13 +176,13 @@ def main():
     base_path = os.getcwd()
     base = Path(base_path)
 
-    parser = HfArgumentParser(Config)
-    config = parser.parse_yaml_file(str(base / "config.yaml"))[0]
+    parser = HfArgumentParser([Arguments, Config])
+    args: Arguments = parser.parse_args_into_dataclasses()[0]
+    config: Config = parser.parse_yaml_file(str(base / args.config))[1]
 
     ensembler = Ensembler(config, base)
 
     results = ensembler()
-    print(count)
     df = pd.DataFrame(results.items(), columns=["id", "answer"])
     name = (
         "-".join(["ensemble", *(model["name"] for model in config.ensemble.models)])

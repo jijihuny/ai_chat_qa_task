@@ -82,37 +82,44 @@ class Trainer(Base):
             ]
 
         # ANSWER_REGEXP = "\<\|start_header_id\|\>assistant\<\|end_header_id\|\>\n\n(.+)\<\|eot_id\|\>"
+        if self.metric:
 
-        def compute_metrics(eval_pred: EvalPrediction):
-            predictions, label_ids = eval_pred
-            N, length = label_ids.shape
-            # TODO memory issue, generation
-            total_loss = cross_entropy(
-                Tensor(predictions).view(N, -1, length), LongTensor(label_ids)
-            )
-            if isinstance(predictions, np.ndarray):
-                predictions = [predictions[predictions >= 0].astype(np.int32)]
-            elif isinstance(predictions, tuple):
-                predictions = [pred[pred >= 0].astype(np.int32) for pred in predictions]
+            def compute_metrics(eval_pred: EvalPrediction):
+                predictions, label_ids = eval_pred
+                N, length = label_ids.shape
+                # TODO memory issue, generation
+                total_loss = cross_entropy(
+                    Tensor(predictions).view(N, -1, length), LongTensor(label_ids)
+                )
+                if isinstance(predictions, np.ndarray):
+                    predictions = [predictions[predictions >= 0].astype(np.int32)]
+                elif isinstance(predictions, tuple):
+                    predictions = [
+                        pred[pred >= 0].astype(np.int32) for pred in predictions
+                    ]
 
-            if isinstance(label_ids, np.ndarray):
-                label_ids = [label_ids[label_ids >= 0].astype(np.int32)]
-            elif isinstance(label_ids, tuple):
-                label_ids = [label[label >= 0].astype(np.int32) for label in label_ids]
+                if isinstance(label_ids, np.ndarray):
+                    label_ids = [label_ids[label_ids >= 0].astype(np.int32)]
+                elif isinstance(label_ids, tuple):
+                    label_ids = [
+                        label[label >= 0].astype(np.int32) for label in label_ids
+                    ]
 
-            predictions = self.tokenizer.batch_decode(predictions)
-            references = self.tokenizer.batch_decode(label_ids)
+                predictions = self.tokenizer.batch_decode(predictions)
+                references = self.tokenizer.batch_decode(label_ids)
 
-            results = self.metric.compute(
-                predictions=predictions, references=references
-            )
+                results = self.metric.compute(
+                    predictions=predictions, references=references
+                )
 
-            return {"total_loss": total_loss, **results}
+                return {"total_loss": total_loss, **results}
 
-        def preprocess_logits_for_metrics(logits: Tensor, label_ids: Tensor) -> Tensor:
-            if isinstance(logits, tuple):
-                logits = logits[0]
-            return logits.argmax(dim=-1)
+            def preprocess_logits_for_metrics(
+                logits: Tensor, label_ids: Tensor
+            ) -> Tensor:
+                if isinstance(logits, tuple):
+                    logits = logits[0]
+                return logits.argmax(dim=-1)
 
         self.trainer = CosineScheduleTrainer(
             model=self.model,
@@ -145,7 +152,7 @@ def main():
 
     cwd = os.getcwd()
     base = Path(cwd)
-    config_path = base / "config.yaml"
+    config_path = base / args.config
     config_yaml = None
     with config_path.open("r") as input:
         config_yaml = yaml.load(input, Loader=yaml.FullLoader)

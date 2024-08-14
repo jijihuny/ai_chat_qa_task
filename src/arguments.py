@@ -7,7 +7,8 @@ from dataclasses import dataclass
 
 @dataclass
 class Arguments:
-    name: str | None = HfArg(default="experiment", aliases=["-n"])
+    name: str | None = HfArg(default="mymodel", aliases=["-n"])
+    config: str = HfArg(default="config.yaml", aliases=["-c"])
 
 
 @dataclass
