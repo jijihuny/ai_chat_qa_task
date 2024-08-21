@@ -86,9 +86,8 @@ def main():
     config_yaml = None
     with config_path.open("r") as input:
         config_yaml = yaml.load(input, Loader=yaml.FullLoader)
-
-    config: Config = None
-    # config = parser.parse_dict(config_yaml)[1]
+    
+    config: Config = parser.parse_dict(config_yaml)[1]
     evaluator = Evaluator(config)
 
     results, frame = evaluator()
