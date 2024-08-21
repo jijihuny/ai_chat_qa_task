@@ -87,16 +87,17 @@ def main():
     with config_path.open("r") as input:
         config_yaml = yaml.load(input, Loader=yaml.FullLoader)
 
-    config: Config = parser.parse_dict(config_yaml)[1]
+    config: Config = None
+    # config = parser.parse_dict(config_yaml)[1]
     evaluator = Evaluator(config)
 
     results, frame = evaluator()
 
     output_path = base / "eval" / str(args.name)
     output_path.mkdir(exist_ok=True, parents=True)
-    if config.metric.only_inference != True and results:
-        with (output_path / "result.yaml").open("w") as output:
-            yaml.dump(results, output)
+    # if config.metric.only_inference != True and results:
+    #     with (output_path / "result.yaml").open("w") as output:
+    #         yaml.dump(results, output)
     with (output_path / "config.yaml").open("w") as output:
         yaml.dump(config_yaml, output, allow_unicode=True)
 
