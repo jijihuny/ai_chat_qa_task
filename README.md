@@ -1,4 +1,4 @@
-# 2024 인하 인공지능 챌린지
+# [2024 인하 인공지능 챌린지](https://dacon.io/competitions/official/236291/overview/description)
 
 ## 구조
 
